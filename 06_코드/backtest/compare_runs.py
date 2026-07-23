@@ -64,8 +64,10 @@ def _cmp_row(name, s):
             f"MDD {idx['mdd']*100:6.2f}%")
 
 
-def make_comparison(mine_dir: str, team_dir: str, fig_path: str) -> dict:
-    """두 산출을 겹치는 구간으로 정렬·대조 → 비교 대시보드 저장. 요약 dict 반환."""
+def make_comparison(mine_dir: str, team_dir: str, fig_path: str, align: bool = True) -> dict:
+    """두 산출을 겹치는 구간으로 정렬·대조 → 비교 대시보드 저장. 요약 dict 반환.
+    align=True: 요약표도 '겹치는 구간'으로 잘라 계산 → 종료일 차이(창) 착시 제거.
+    align=False: 요약표는 각 전체구간(관측창 차이 그대로 노출)."""
     mine, team = _load(mine_dir), _load(team_dir)
     # 겹치는 거래일만 비교 (수집 창 차이 흡수). 양측 첫 공통일 기준 재리베이스로 형태 비교.
     merged = mine.merge(team, on="market_date", suffixes=("_mine", "_team"), how="inner")
@@ -74,8 +76,12 @@ def make_comparison(mine_dir: str, team_dir: str, fig_path: str) -> dict:
     merged["idx_team"] = merged["index_level_team"] / base_t * 1000
     merged["diff_pct"] = (merged["idx_mine"] / merged["idx_team"] - 1) * 100   # 상대 괴리(%)
 
-    s_mine = M.performance_summary(mine)
-    s_team = M.performance_summary(team)
+    # 요약표 계산 구간: align 시 겹치는 날짜로 양측을 잘라 창 차이를 제거
+    common = set(merged["market_date"])
+    mine_s = mine[mine["market_date"].isin(common)] if align else mine
+    team_s = team[team["market_date"].isin(common)] if align else team
+    s_mine = M.performance_summary(mine_s)
+    s_team = M.performance_summary(team_s)
     corr = merged["idx_mine"].pct_change().corr(merged["idx_team"].pct_change())
     max_gap = merged["diff_pct"].abs().max()
 
@@ -85,8 +91,9 @@ def make_comparison(mine_dir: str, team_dir: str, fig_path: str) -> dict:
                           left=0.08, right=0.95, top=0.83, bottom=0.07)
     fig.suptitle("독립 재산출 교차검증 — 내 수집 vs 팀 수집 (겹치는 구간)",
                  x=0.08, y=0.965, ha="left", fontsize=15, color=C["ink"], fontweight="bold")
+    align_note = "요약표=겹치는구간 정렬" if align else "요약표=각 전체구간"
     fig.text(0.08, 0.925, f"공통 거래일 {len(merged)}일 · 수익률 상관 {corr:.4f} · "
-             f"최대 상대괴리 {max_gap:.2f}%  ·  seed_basket(US, KR 인계대기)·인용금지",
+             f"최대 상대괴리 {max_gap:.2f}% · {align_note}  ·  seed_basket(US, KR 인계대기)·인용금지",
              ha="left", fontsize=9.5, color=C["muted"])
 
     # (1) 지수 오버레이 — 팀은 점선으로 위에 겹쳐 '일치' 가독화 (완전 일치 시 실선끼리는 가려짐)
@@ -138,10 +145,17 @@ def make_comparison(mine_dir: str, team_dir: str, fig_path: str) -> dict:
     plt.close(fig)
     return {"common_days": len(merged), "return_corr": float(corr),
             "max_abs_gap_pct": float(max_gap),
-            "final_gap_pct": float(merged["diff_pct"].iloc[-1])}
+            "final_gap_pct": float(merged["diff_pct"].iloc[-1]),
+            "summary_mine": s_mine, "summary_team": s_team, "aligned": align}
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--no-align", action="store_true",
+                    help="요약표를 각 전체구간으로(창 차이 노출). 기본은 겹치는구간 정렬")
+    args = ap.parse_args()
+
     team_in = os.path.join(ENGINE, "team_input")
     team_out = os.path.join(ENGINE, "output_team")
     mine_out = os.path.join(ENGINE, "output_real")   # 내 data_loader→engine 산출(선행 필요)
@@ -158,11 +172,12 @@ def main():
     fig_dir = os.path.join(HERE, "figures")
     os.makedirs(fig_dir, exist_ok=True)
     fig_path = os.path.join(fig_dir, "compare_dashboard.png")
-    r = make_comparison(mine_out, team_out, fig_path)
+    r = make_comparison(mine_out, team_out, fig_path, align=not args.no_align)
 
     print("[3/3] 완료\n")
-    print(_cmp_row("내수집", M.performance_summary(_load(mine_out))))
-    print(_cmp_row("팀수집", M.performance_summary(_load(team_out))))
+    print(f"  [{'겹치는구간 정렬' if r['aligned'] else '각 전체구간'}]")
+    print(_cmp_row("내수집", r["summary_mine"]))
+    print(_cmp_row("팀수집", r["summary_team"]))
     print(f"\n  공통 거래일 {r['common_days']}일 · 수익률 상관 {r['return_corr']:.4f}")
     print(f"  최대 상대괴리 {r['max_abs_gap_pct']:.2f}% · 최종 괴리 {r['final_gap_pct']:+.2f}%")
     print(f"  → 비교 대시보드: {fig_path}")

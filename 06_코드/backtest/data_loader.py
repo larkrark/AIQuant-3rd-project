@@ -230,6 +230,19 @@ def build_inputs(out_dir: str, basket_path: str = DEFAULT_BASKET,
     }
     with open(os.path.join(out_dir, "sources.json"), "w", encoding="utf-8") as f:
         json.dump(sources, f, ensure_ascii=False, indent=2)
+
+    # 수집 개요 피겨 — 엔진 투입 전 원본을 눈으로 검수 (수집 단계 자체의 시각화)
+    try:
+        import data_report
+        fig_dir = os.path.join(HERE, "figures")
+        os.makedirs(fig_dir, exist_ok=True)
+        fig = os.path.join(fig_dir, "data_overview.png")
+        data_report.make_data_overview(out_dir, fig)
+        sources["overview_figure"] = fig
+        print(f"[data_loader] 수집 개요 피겨 → {fig}")
+    except Exception as ex:
+        print(f"[data_loader] 개요 피겨 생략({type(ex).__name__})")
+
     print(f"[data_loader] 완료 → {out_dir}  (공통 개장일 {n_common}일 · fx: {fx_src})")
     return sources
 
