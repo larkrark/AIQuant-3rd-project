@@ -70,6 +70,35 @@ def performance_summary(df: pd.DataFrame) -> dict:
     }
 
 
+def rolling_metrics(df: pd.DataFrame, window: int = 20) -> pd.DataFrame:
+    """이동창(기본 20거래일) 롤링 위험지표.
+    반환: [market_date, roll_vol_index, roll_vol_bm, roll_sharpe_index] (창 충족 후부터)"""
+    idx_ret = df["index_level"].pct_change()
+    bm_ret = df["benchmark_level"].pct_change()
+    ann = np.sqrt(TRADING_DAYS)
+    out = pd.DataFrame({
+        "market_date": df["market_date"],
+        "roll_vol_index": idx_ret.rolling(window).std(ddof=1) * ann,
+        "roll_vol_bm": bm_ret.rolling(window).std(ddof=1) * ann,
+        "roll_sharpe_index": (idx_ret.rolling(window).mean() * TRADING_DAYS) /
+                             (idx_ret.rolling(window).std(ddof=1) * ann),
+    })
+    return out.dropna().reset_index(drop=True)
+
+
+def cell_composition(output_dir: str) -> pd.DataFrame:
+    """최신 리밸의 셀별 목표비중 합 (6셀 배정·재배분 결과 시각화용).
+    반환: [cell_id, market, primary_theme, weight] — weight 내림차순"""
+    import glob
+    paths = sorted(glob.glob(os.path.join(output_dir, "weights_*.csv")))
+    if not paths:
+        return pd.DataFrame(columns=["cell_id", "market", "primary_theme", "weight"])
+    w = pd.read_csv(paths[-1], dtype={"security_id": str})
+    g = (w.groupby(["cell_id", "market", "primary_theme"])["final_target_weight"]
+         .sum().reset_index().rename(columns={"final_target_weight": "weight"}))
+    return g.sort_values("weight", ascending=False).reset_index(drop=True)
+
+
 def compute_turnover(output_dir: str) -> pd.DataFrame:
     """리밸 간 단방향 턴오버 = 0.5 · Σ|Δw|.
     weights_*.csv 들을 날짜순으로 읽어 연속 리밸 사이의 비중 변화를 집계.

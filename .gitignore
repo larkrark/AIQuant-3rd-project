@@ -22,8 +22,10 @@ Thumbs.db
 .vscode/
 .idea/
 
-# 합성 산출물 (검증 전용 · 인용 금지 · 재생성 가능)
+# 데이터 산출물 (검증 전용 · 인용 금지 · 재생성 가능)
 06_코드/engine/sample_data/
 06_코드/engine/output/
+06_코드/engine/real_data/
+06_코드/engine/output_real/
 06_코드/backtest/figures/
 06_코드/backtest/real_data/

@@ -47,21 +47,33 @@ def main():
                     help="engine 산출물 폴더 (index_vs_benchmark.csv 위치)")
     ap.add_argument("--fig-dir", default=os.path.join(HERE, "figures"))
     ap.add_argument("--run-engine", action="store_true",
-                    help="합성데이터 생성 + engine 실행부터 수행")
+                    help="데이터 생성 + engine 실행부터 수행")
+    ap.add_argument("--source", choices=["sample", "real"], default="sample",
+                    help="sample=합성(make_sample) · real=실데이터(data_loader)")
     args = ap.parse_args()
 
     if args.run_engine:
-        print("[1/3] 합성데이터 생성 + engine 실행 …")
-        subprocess.run([sys.executable, "make_sample.py"], cwd=ENGINE, check=True)
-        subprocess.run([sys.executable, "run_pilot.py", "sample_data", "output"],
+        if args.source == "real":
+            print("[1/3] 실데이터 수집(data_loader) + engine 실행 …")
+            real_dir = os.path.join(ENGINE, "real_data")
+            import data_loader
+            data_loader.build_inputs(real_dir)
+            in_name, out_name = "real_data", "output_real"
+        else:
+            print("[1/3] 합성데이터 생성(make_sample) + engine 실행 …")
+            subprocess.run([sys.executable, "make_sample.py"], cwd=ENGINE, check=True)
+            in_name, out_name = "sample_data", "output"
+        subprocess.run([sys.executable, "run_pilot.py", in_name, out_name],
                        cwd=ENGINE, check=True)
-        args.output_dir = os.path.join(ENGINE, "output")
+        args.output_dir = os.path.join(ENGINE, out_name)
 
     os.makedirs(args.fig_dir, exist_ok=True)
     fig_path = os.path.join(args.fig_dir, "backtest_dashboard.png")
 
     print("[2/3] 성과·위험 지표 계산 + 대시보드 생성 …")
-    s = R.make_dashboard(args.output_dir, fig_path)
+    note = ("실데이터·데모 유니버스(검증용, 인용금지)" if args.source == "real"
+            else "합성데이터(검증용, 인용금지)")
+    s = R.make_dashboard(args.output_dir, fig_path, data_note=note)
 
     # 턴오버 (weights_*.csv 존재 시)
     try:

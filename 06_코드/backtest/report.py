@@ -25,6 +25,8 @@ C = {
     "index": "#2a78d6", "bm": "#eb6834",       # 카테고리 슬롯 1·2
     "good": "#006300", "bad": "#d03b3b",       # 다이버징(초과성과 +/-)
 }
+# 테마별 색 (셀 구성 막대) — 팔레트 카테고리 슬롯
+THEME_C = {"AI_ROBOTICS": "#2a78d6", "ENERGY_POWER": "#1baf7a", "SPACE_DEFENSE": "#eda100"}
 
 
 def _style(ax):
@@ -113,24 +115,75 @@ def _excess(ax, df):
     ax.margins(x=0.02)
 
 
-def make_dashboard(output_dir: str, fig_path: str) -> dict:
+def _rolling_vol(ax, output_dir, df):
+    """롤링 20일 연율 변동성 — 지수 vs BM (위험이 언제 커졌나)."""
+    r = M.rolling_metrics(df)
+    ax.plot(r["market_date"], r["roll_vol_index"] * 100, color=C["index"], linewidth=1.8, label="지수")
+    ax.plot(r["market_date"], r["roll_vol_bm"] * 100, color=C["bm"], linewidth=1.8, label="BM")
+    _style(ax)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax.set_title("롤링 변동성 — 20일 연율", fontsize=11, color=C["ink"],
+                 fontweight="bold", loc="left", pad=8)
+    ax.legend(loc="upper left", frameon=False, fontsize=8.5, labelcolor=C["ink2"], ncol=2)
+    ax.margins(x=0.02)
+
+
+def _rolling_sharpe(ax, output_dir, df):
+    """롤링 20일 Sharpe (지수) — 0 기준선 위/아래로 위험조정성과 추이."""
+    r = M.rolling_metrics(df)
+    d, sh = r["market_date"], r["roll_sharpe_index"]
+    ax.plot(d, sh, color=C["ink2"], linewidth=1.4, zorder=3)
+    ax.fill_between(d, sh, 0, where=(sh >= 0), color=C["good"], alpha=0.16, zorder=2)
+    ax.fill_between(d, sh, 0, where=(sh < 0), color=C["bad"], alpha=0.16, zorder=2)
+    _style(ax)
+    ax.axhline(0, color=C["axis"], linewidth=1)
+    ax.set_title("롤링 Sharpe — 20일 (지수)", fontsize=11, color=C["ink"],
+                 fontweight="bold", loc="left", pad=8)
+    ax.margins(x=0.02)
+
+
+def _cell_composition(ax, output_dir):
+    """최신 리밸 셀별 목표비중 — 6셀 배정·재배분 결과 (테마색·지역 라벨)."""
+    g = M.cell_composition(output_dir)
+    labels = [f"{r.primary_theme[:4]}·{r.market}" for r in g.itertuples()]
+    colors = [THEME_C.get(r.primary_theme, C["muted"]) for r in g.itertuples()]
+    y = range(len(g))
+    ax.barh(list(y), g["weight"] * 100, color=colors, height=0.66, zorder=3)
+    for i, w in enumerate(g["weight"] * 100):
+        ax.text(w + 0.4, i, f"{w:.1f}%", va="center", fontsize=8.5, color=C["ink2"])
+    ax.set_yticks(list(y))
+    ax.set_yticklabels(labels, fontsize=8.5)
+    ax.invert_yaxis()
+    _style(ax)
+    ax.grid(axis="x", color=C["grid"], linewidth=0.8, zorder=0)
+    ax.grid(axis="y", visible=False)
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=5))
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax.set_title("셀 구성 비중 — 최신 리밸 (테마×지역)", fontsize=11, color=C["ink"],
+                 fontweight="bold", loc="left", pad=8)
+
+
+def make_dashboard(output_dir: str, fig_path: str, data_note: str = "합성데이터(검증용, 인용금지)") -> dict:
     """engine 산출물 → 성과 지표 계산 → 대시보드 PNG 저장. 지표 dict 반환."""
     df = M.load_index_series(output_dir)
     s = M.performance_summary(df)
 
-    fig = plt.figure(figsize=(12, 9), facecolor=C["surface"], dpi=130)
-    gs = fig.add_gridspec(3, 2, height_ratios=[0.5, 2.0, 1.4], hspace=0.42, wspace=0.16,
-                          left=0.07, right=0.94, top=0.9, bottom=0.07)
+    fig = plt.figure(figsize=(12, 14.5), facecolor=C["surface"], dpi=130)
+    gs = fig.add_gridspec(5, 2, height_ratios=[0.42, 1.7, 1.15, 1.15, 1.15],
+                          hspace=0.5, wspace=0.16, left=0.07, right=0.94, top=0.94, bottom=0.05)
     fig.suptitle("백테스트 리포트 — 커스텀 지수 vs 합성 BM",
-                 x=0.07, y=0.965, ha="left", fontsize=15, color=C["ink"], fontweight="bold")
-    fig.text(0.07, 0.925, f"{s['meta']['start']} ~ {s['meta']['end']}  ·  "
-             f"{s['meta']['n_days']}거래일  ·  합성데이터(검증용, 인용금지)",
+                 x=0.07, y=0.975, ha="left", fontsize=15, color=C["ink"], fontweight="bold")
+    fig.text(0.07, 0.953, f"{s['meta']['start']} ~ {s['meta']['end']}  ·  "
+             f"{s['meta']['n_days']}거래일  ·  {data_note}",
              ha="left", fontsize=9.5, color=C["muted"])
 
     _kpi_strip(fig.add_subplot(gs[0, :]), s)
     _growth(fig.add_subplot(gs[1, :]), df)
     _underwater(fig.add_subplot(gs[2, 0]), df)
     _excess(fig.add_subplot(gs[2, 1]), df)
+    _rolling_vol(fig.add_subplot(gs[3, 0]), output_dir, df)
+    _rolling_sharpe(fig.add_subplot(gs[3, 1]), output_dir, df)
+    _cell_composition(fig.add_subplot(gs[4, :]), output_dir)
 
     fig.savefig(fig_path, facecolor=C["surface"], bbox_inches="tight")
     plt.close(fig)
