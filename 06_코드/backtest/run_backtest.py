@@ -71,7 +71,7 @@ def main():
     fig_path = os.path.join(args.fig_dir, "backtest_dashboard.png")
 
     print("[2/3] 성과·위험 지표 계산 + 대시보드 생성 …")
-    note = ("실데이터·데모 유니버스(검증용, 인용금지)" if args.source == "real"
+    note = ("실데이터·seed_basket(KR 인계대기)·룰북기준 독립수집(검증용, 인용금지)" if args.source == "real"
             else "합성데이터(검증용, 인용금지)")
     s = R.make_dashboard(args.output_dir, fig_path, data_note=note)
 
