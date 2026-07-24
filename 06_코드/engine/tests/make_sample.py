@@ -3,6 +3,10 @@
 12종목 = 6셀 × 2 (단, KR_SPACE_DEFENSE는 1종목 → 정상, US_ENERGY_POWER는 0종목 → 재배분 발동 시험).
 시즈닝 미달 1종목, 종일정지 이력 1종목, 결측 1일 1종목 포함."""
 import numpy as np, pandas as pd
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8")   # Windows cp949 콘솔에서 —·→ 등 출력 깨짐 방지
+    except Exception: pass
 
 rng = np.random.default_rng(20260723)
 dates = pd.bdate_range("2025-10-01", "2026-07-10").strftime("%Y-%m-%d")

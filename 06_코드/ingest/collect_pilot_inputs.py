@@ -7,6 +7,10 @@
 출력 스키마 = 데이터사전 v0.2 / run_pilot.py 입력계약. rule_version = v0.9-pilot
 """
 import sys, os, json
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8")   # Windows cp949 콘솔에서 —·→ 등 출력 깨짐 방지
+    except Exception: pass
 import pandas as pd
 try:  # .env의 ECOS_API_KEY 자동 로드 (로컬 편의)
     from dotenv import load_dotenv; load_dotenv()
@@ -154,7 +158,7 @@ def rebuild_calendar(out: str):
 
 if __name__ == "__main__":
     basket_path = sys.argv[1] if len(sys.argv) > 1 else "seed_basket.csv"
-    out = sys.argv[2] if len(sys.argv) > 2 else "input_data"
+    out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "input_data")
     os.makedirs(out, exist_ok=True)
     basket = pd.read_csv(basket_path, dtype={"security_id": str})
     us_tickers = basket[basket["market"] == "US"]["security_id"].tolist()

@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 """KR9 + US9 입력을 run_pilot.py 입력계약(18종목)으로 병합. 드라이런 준비용."""
 import os, pandas as pd
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8")   # Windows cp949 콘솔에서 —·→ 등 출력 깨짐 방지
+    except Exception: pass
 ID = {"security_id": str}
-IN = "input_data"; KR = os.path.join(IN, "kr9_handoff")
-OUT = "pilot_run/input"; os.makedirs(OUT, exist_ok=True)
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_DATA = os.path.abspath(os.path.join(_HERE, "..", "data"))
+IN = os.path.join(_DATA, "input_data"); KR = os.path.join(IN, "kr9_handoff")
+OUT = os.path.join(_DATA, "pilot_run", "input"); os.makedirs(OUT, exist_ok=True)
 rd = lambda p: pd.read_csv(p, dtype=ID, encoding="utf-8-sig")
 
 # 1) seed_basket (5 core cols)
 core = ["security_id","entity_id","market","primary_theme","gate_status"]
-us_s = rd("seed_basket.csv")[core]
+us_s = rd(os.path.join(IN,"seed_basket.csv"))[core]   # US 9종목 seed (data/input_data)
 kr_s = rd(os.path.join(KR,"seed_basket.csv"))[core]
 seed = pd.concat([kr_s, us_s], ignore_index=True)
 seed.to_csv(os.path.join(OUT,"seed_basket.csv"), index=False)

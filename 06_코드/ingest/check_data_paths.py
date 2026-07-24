@@ -3,6 +3,10 @@
 사용: pip install pykrx yfinance 후 python check_data_paths.py
 각 경로의 성공/실패와 표본 값을 출력. 전부 성공해야 파일럿 수집 착수."""
 import sys
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8")   # Windows cp949 콘솔에서 —·→ 등 출력 깨짐 방지
+    except Exception: pass
 
 def check(name, fn):
     try:

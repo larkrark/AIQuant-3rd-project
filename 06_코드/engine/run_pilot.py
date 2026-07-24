@@ -12,6 +12,10 @@
   bm_us.csv        market_date,close                       (Russell3000 PR, USD)
 """
 import sys, os, json
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8")   # Windows cp949 콘솔에서 —·→ 등 출력 깨짐 방지
+    except Exception: pass
 import pandas as pd
 import config as C
 import market_state, indicators, composition, index_calc
