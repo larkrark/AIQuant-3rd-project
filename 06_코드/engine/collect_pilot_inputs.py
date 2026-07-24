@@ -33,7 +33,9 @@ def collect_us_prices(tickers: list, out: str):
             continue
         for d, r in df.iterrows():
             rows.append({"security_id": tk, "market": "US", "market_date": d.strftime("%Y-%m-%d"),
-                         "raw_close": round(float(r["Close"]), 4), "volume": float(r["Volume"])})
+                         "raw_close": round(float(r["Close"]), 4), "volume": float(r["Volume"]),
+                         "adj_close": round(float(r["Adj Close"]), 4) if "Adj Close" in df.columns else None})
+            # adj_close = 수정주가 — 지수 평가·수익률 전용 (D-07). raw_close는 거래대금 재구성 전용
         # 상장일 확인 — 야후 firstTradeDate는 참고값. 2025-10 이전 상장이면 파일럿에 충분, 이후면 원출처 확인 필요
         ftd = t.info.get("firstTradeDateEpochUtc") or t.info.get("firstTradeDateMilliseconds")
         if ftd:

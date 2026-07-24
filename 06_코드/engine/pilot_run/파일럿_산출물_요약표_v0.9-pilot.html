@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>파일럿 산출물 요약표 · v0.9-pilot</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1d24; --muted:#5b6270; --line:#e4e7ec;
+    --kr:#2f6db3; --us:#b3562f; --pos:#1f8a5b; --neg:#c0392b; --chip:#eef1f5; --warn:#8a6d1f; --warnbg:#fbf5e3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  h2 .no{display:inline-flex;width:22px;height:22px;border-radius:6px;background:var(--ink);color:#fff;
+    font-size:12px;align-items:center;justify-content:center}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kpi .b{background:var(--chip);border-radius:10px;padding:12px 14px}
+  .kpi .l{color:var(--muted);font-size:12px;margin-bottom:4px}
+  .kpi .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .chip{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;background:var(--chip);color:var(--muted)}
+  .kr{color:var(--kr);font-weight:600}.us{color:var(--us);font-weight:600}
+  .ok{color:var(--pos);font-weight:600}
+  .note{background:var(--warnbg);border:1px solid #ecdcae;border-radius:10px;padding:12px 14px;color:#5c4d1f;font-size:12.5px}
+  .note b{color:var(--warn)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:680px){.kpi{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+  .foot{color:var(--muted);font-size:11.5px;margin-top:8px}
+  code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>엔진 v0 파일럿 산출물 요약표</h1>
+  <div class="sub">rule_version <b>v0.9-pilot</b>(동결·잠정) · 실행 2026-07-24 · 대표 검토일 2026-03-31 / 2026-06-30 · 기준값 1,000 · PR·원화·무헤지</div>
+
+  <div class="card">
+    <h2><span class="no">0</span>실행 개요</h2>
+    <table>
+      <tr><th style="width:180px">항목</th><th>내용</th></tr>
+      <tr><td>유니버스</td><td>Seed Basket 18종목 (KR 9 + US 9), 테마 3 × 지역 2 = 6셀</td></tr>
+      <tr><td>입력 출처</td><td>KR9 = 김근형 최종 인계본(core 4파일, SHA 일치) + halts 21일 · US9 = 수집분 · 환율 ECOS · calendar 공통개장일</td></tr>
+      <tr><td>합성 BM</td><td><span class="kr">KOSPI200 PR</span> 50% + <span class="us">Russell3000 PR</span> 50% (원화환산)</td></tr>
+      <tr><td>BM 출처 상태</td><td><span class="ok">KRX 공식 승격 완료</span> — data.krx.co.kr 로그인 수집(180일). 야후 예비값과 <b>180일 전부 0.00% 일치</b> 확인 → 수치 불변, 출처만 공식화</td></tr>
+      <tr><td>산출물</td><td><code>index_vs_benchmark</code> · <code>daily_market_state</code> · <code>adtv90_ledger</code> · <code>constituents/weights/thresholds</code>(회차별) · <code>cell_shortage</code></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">1</span>성과 요약 <span class="chip">2026-04-01 ~ 06-30 · 59 개장일</span></h2>
+    <div class="kpi">
+      <div class="b"><div class="l">지수 종가</div><div class="v">1,271.1</div><div class="foot pos">+27.11%</div></div>
+      <div class="b"><div class="l">합성 BM 종가</div><div class="v">1,417.8</div><div class="foot pos">+41.78%</div></div>
+      <div class="b"><div class="l">누적 alpha</div><div class="v neg">−146.6</div><div class="foot neg">BM 대비 언더퍼폼</div></div>
+      <div class="b"><div class="l">지수 최고/최저</div><div class="v">1,366.9</div><div class="foot">최저 990.6</div></div>
+    </div>
+    <div class="foot">양 계열 모두 2026-04-01 = 1,000 리베이스. 리밸런싱 2회(3-31·6-30 선정 → 직후 첫 공통 개장일 효력).</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">2</span>구성 · 제외 (회차별)</h2>
+    <div class="grid2">
+      <div>
+        <div class="foot" style="margin-bottom:6px"><b>2026-03-31</b> · 선정 <b>15</b> / 18</div>
+        <table>
+          <tr><th>제외 종목</th><th>시장</th><th>사유</th></tr>
+          <tr><td>018260</td><td class="kr">KR</td><td>ADTV90 P10 미달</td></tr>
+          <tr><td>SPCX</td><td class="us">US</td><td>시즈닝 미충족(상장 6/12)</td></tr>
+          <tr><td>ATI</td><td class="us">US</td><td>ADTV90 P10 미달</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="foot" style="margin-bottom:6px"><b>2026-06-30</b> · 선정 <b>15</b> / 18</div>
+        <table>
+          <tr><th>제외 종목</th><th>시장</th><th>사유</th></tr>
+          <tr><td>018260</td><td class="kr">KR</td><td>ADTV90 P10 미달</td></tr>
+          <tr><td>SPCX</td><td class="us">US</td><td>시즈닝 미충족(관측 12일)</td></tr>
+          <tr><td>KTOS</td><td class="us">US</td><td>ADTV90 P10 미달</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="foot">SPCX는 양 회차 모두 시즈닝(유효관측 90일) 미충족으로 제외. US 우주방산 P10 탈락 종목이 회차별 교대(3-31 ATI · 6-30 KTOS).</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">3</span>셀 가중 (6셀 각 1/6 = 16.67%, 셀 내 동일가중)</h2>
+    <table>
+      <tr><th>셀</th><th class="num">선정 종목수</th><th class="num">셀 가중</th><th class="num">종목당 가중</th><th>비고</th></tr>
+      <tr><td><span class="kr">KR</span> · AI로보틱스</td><td class="num">2</td><td class="num">16.67%</td><td class="num">8.33%</td><td>018260 탈락</td></tr>
+      <tr><td><span class="kr">KR</span> · 에너지·전력</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td>—</td></tr>
+      <tr><td><span class="kr">KR</span> · 우주방산</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td>—</td></tr>
+      <tr><td><span class="us">US</span> · AI로보틱스</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td>—</td></tr>
+      <tr><td><span class="us">US</span> · 에너지·전력</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td>—</td></tr>
+      <tr><td><span class="us">US</span> · 우주방산</td><td class="num">1</td><td class="num">16.67%</td><td class="num">16.67%</td><td class="neg">1종목 집중</td></tr>
+    </table>
+    <div class="foot">가중 총합 = 1.000000 (검산 통과). 6셀 모두 충족 → 셀 부족·타지역 재배분 0건. 셀 내 가중은 H 확정 전 잠정 동일가중(WEIGHTING_STATUS=TEMPORARY).</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">4</span>ADTV90 잠정 하한 (시장별 분포 P10)</h2>
+    <table>
+      <tr><th>회차</th><th class="num">KR P10 (원)</th><th class="num">US P10 (USD)</th></tr>
+      <tr><td>2026-03-31</td><td class="num">73,914,096,486</td><td class="num">308,975,201</td></tr>
+      <tr><td>2026-06-30</td><td class="num">126,878,040,848</td><td class="num">325,377,655</td></tr>
+    </table>
+    <div class="foot">official_adtv90 = 정지일 0 반영(ADTV90_METHOD=ZERO). ADTV90 원장 상태: 17 CALCULATED + 1 SEASONING_INCOMPLETE(SPCX) / 회차.</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">5</span>검증 체크</h2>
+    <table>
+      <tr><th>항목</th><th>결과</th></tr>
+      <tr><td>KR9 core 3파일 SHA-256 vs manifest</td><td class="ok">일치 (prices·listings·seed_basket)</td></tr>
+      <tr><td>listings 정식본 교체</td><td class="ok">완료 — 010120=1994-07-11, 012450=1987-05-27 (KIND 공식)</td></tr>
+      <tr><td>3파일 종목집합 교집합</td><td class="ok">9/9 일치, 중복키 0</td></tr>
+      <tr><td>가중 총합 검산</td><td class="ok">1.000000 (양 회차)</td></tr>
+      <tr><td>KRX 공식 BM ↔ 야후 예비</td><td class="ok">180일 0.00% 일치 → 산출물 SHA 동일</td></tr>
+      <tr><td>엔진 종료 코드</td><td class="ok">0 (정상 완주)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">6</span>한계 · 주의 (전원 확인/이월)</h2>
+    <div class="note">
+      • 이 수치는 <b>파이프라인 검증·비교시험 입력 확보용 잠정치</b>입니다 — 간이투자설명서 [백테스트 후 채움] 칸에 넣지 마세요(정식 백테스트 몫).<br>
+      • <b>A-2 "종일 거래정지일 0 반영"</b>은 여전히 <b>전원 확인 대기</b> 안건 — halts 21일 반영 결과도 그 전제 위의 잠정치.<br>
+      • <b>P10 하한</b>은 9종목 소규모 유니버스에서 최저 1종목을 기계적으로 잘라내는 구조 → 하한 절대금액 승인은 정식 이월(#16).<br>
+      • <b>US 우주방산 셀 1종목(16.67%) 집중</b> — 상한(NO_CAP) 미적용 파일럿 한계, 상한·가중(H) 확정 시 재검토.<br>
+      • 시즈닝은 수집창(2025-10~) 내 관측으로 산출한 파일럿 근사 — SPCX 외 종목은 창 이전 상장이라 판정 영향 없음.
+    </div>
+  </div>
+
+  <div class="foot">출처: <code>06_코드/engine/pilot_run/output_krxbm/</code> · 병합 <code>build_pilot_inputs.py</code> · BM <code>input_data/bm_kr_krx_official.csv</code></div>
+</div>
+</body>
+</html>
