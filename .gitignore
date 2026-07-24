@@ -1,6 +1,8 @@
 ~$*.docx
+~$*.pptx
 __pycache__/
 *.pyc
 .env
 .env.*
 secrets.*
+_to_delete/

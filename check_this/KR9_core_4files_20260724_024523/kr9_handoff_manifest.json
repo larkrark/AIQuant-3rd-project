@@ -1,0 +1,157 @@
+﻿{
+    "manifest_version":  "KR9_FINAL_HANDOFF_v1.0",
+    "generated_at":  "2026-07-24 01:30:22 +09:00",
+    "project_scope":  "KR9_SEED_BASKET_TEAM_INPUT_HANDOFF",
+    "handoff_status":  "PASS",
+    "handoff_file_count":  4,
+    "receiver_read_order":  [
+                                "kr9_handoff_manifest.json",
+                                "seed_basket.csv",
+                                "listings.csv",
+                                "prices.csv"
+                            ],
+    "files":  [
+                  {
+                      "file_name":  "prices.csv",
+                      "role":  "KR9 daily raw close, volume, and KRX exchange trading value",
+                      "row_count":  21680,
+                      "security_count":  9,
+                      "columns":  [
+                                      "security_id",
+                                      "market",
+                                      "market_date",
+                                      "raw_close",
+                                      "volume",
+                                      "exchange_trading_value"
+                                  ],
+                      "sha256":  "368D22F6162EF6BDAC9C89CACCCA835DD27FA1E859436E23E98C16B21CCE3374",
+                      "source_file":  "C:\\Soph\\projects\\custom_index\\index_lab\\universe_disclosure_pit_handoff\\outputs\\engine_handoff\\prices.csv",
+                      "source_sha256":  "368D22F6162EF6BDAC9C89CACCCA835DD27FA1E859436E23E98C16B21CCE3374",
+                      "transformation":  "No data transformation; verified engine handoff file copied byte-for-byte"
+                  },
+                  {
+                      "file_name":  "listings.csv",
+                      "role":  "KR9 official listing dates for seasoning",
+                      "row_count":  9,
+                      "security_count":  9,
+                      "columns":  [
+                                      "security_id",
+                                      "listing_date",
+                                      "delisting_date",
+                                      "listing_date_basis",
+                                      "listing_date_status",
+                                      "validation_status",
+                                      "review_required",
+                                      "seasoning_use"
+                                  ],
+                      "sha256":  "EBB91703AE02BD352665403BB6B24629F5131491D6F019E4EB83AA8A5C735704",
+                      "source_file":  "C:\\Soph\\projects\\custom_index\\index_lab\\universe_disclosure_pit_handoff\\outputs\\engine_handoff\\listings.csv",
+                      "source_sha256":  "C14B4E96414E00D8B4D36255A8E3EEC5A316B2708F06F04519DDEEF14605C6F8",
+                      "official_evidence_file":  "C:\\Soph\\projects\\custom_index\\index_lab\\universe_disclosure_pit_handoff\\work\\krx_listing_evidence\\review\\kr9_kind_listing_candidates_20260723_203412.csv",
+                      "official_evidence_sha256":  "EB057FC314E201A670B5E198262FBD521ADC21DF7EDFF78A1A89809E06200FBD",
+                      "transformation":  "Replaced provisional listing-date proxies with nine KIND official listed-corporation dates after human approval"
+                  },
+                  {
+                      "file_name":  "seed_basket.csv",
+                      "role":  "KR9 Seed Basket identity, theme, and gate metadata",
+                      "row_count":  9,
+                      "security_count":  9,
+                      "columns":  [
+                                      "security_id",
+                                      "entity_id",
+                                      "market",
+                                      "primary_theme",
+                                      "gate_status",
+                                      "entity_id_status",
+                                      "validation_status",
+                                      "approval_status",
+                                      "handoff_scope"
+                                  ],
+                      "sha256":  "D80449FB08887FC221474AE65AFA99B6C6EE7FA81AF481E253C7F173961F2DC9",
+                      "source_file":  "C:\\Soph\\projects\\custom_index\\index_lab\\universe_disclosure_pit_handoff\\outputs\\engine_handoff\\seed_basket.csv",
+                      "source_sha256":  "D80449FB08887FC221474AE65AFA99B6C6EE7FA81AF481E253C7F173961F2DC9",
+                      "transformation":  "No data transformation; verified engine handoff file copied byte-for-byte"
+                  }
+              ],
+    "official_listing_dates":  [
+                                   {
+                                       "security_id":  "010120",
+                                       "listing_date":  "1994-07-11",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "012450",
+                                       "listing_date":  "1987-05-27",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "018260",
+                                       "listing_date":  "2014-11-14",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "064350",
+                                       "listing_date":  "2013-10-30",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "064400",
+                                       "listing_date":  "2025-02-05",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "079550",
+                                       "listing_date":  "2015-10-02",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "267260",
+                                       "listing_date":  "2017-05-10",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "298040",
+                                       "listing_date":  "2018-07-13",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   },
+                                   {
+                                       "security_id":  "307950",
+                                       "listing_date":  "2019-03-28",
+                                       "basis":  "KIND_LISTED_CORP_OFFICIAL",
+                                       "status":  "OFFICIAL_CONFIRMED"
+                                   }
+                               ],
+    "validation":  {
+                       "preflight_qa_file":  "review\\01_preflight_qa.csv",
+                       "listing_diff_file":  "review\\02_listing_date_promotion_diff.csv",
+                       "price_coverage_file":  "review\\03_price_security_coverage.csv",
+                       "cross_file_file":  "review\\04_cross_file_security_check.csv",
+                       "sender_qa_file":  "review\\05_final_sender_qa.csv",
+                       "receiver_qa_file":  "review\\06_final_receiver_qa.csv",
+                       "sender_pass_count":  19,
+                       "sender_fail_count":  0,
+                       "receiver_data_reopen_status":  "PASS"
+                   },
+    "interpretation_limits":  [
+                                  "PASS means the required file, schema, key, date, and handoff checks passed within the defined scope.",
+                                  "The nine constituents remain a Seed Basket and are not automatically the final index constituents.",
+                                  "The listing dates are official KIND listed-corporation dates used for seasoning.",
+                                  "prices.csv preserves KRX exchange_trading_value; raw_close multiplied by volume is not substituted for the official field.",
+                                  "This handoff does not finalize the team BM, final weighting, final indicator thresholds, or final index performance."
+                              ],
+    "next_receiver_action":  [
+                                 "Recalculate SHA-256 for the three CSV files.",
+                                 "Verify the hashes against this manifest.",
+                                 "Verify KR9 security-id intersection across all three CSV files.",
+                                 "Join the files with the US nine-stock, common-calendar, BM, and FX inputs.",
+                                 "Run the mock integration test without changing the Seed Basket definition."
+                             ]
+}

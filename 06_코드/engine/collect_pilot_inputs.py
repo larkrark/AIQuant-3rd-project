@@ -31,16 +31,25 @@ def collect_us_prices(tickers: list, out: str):
         if df.empty:
             print(f"[WARN] {tk}: 0행 — 수집 실패, HOLD 기록 필요")
             continue
-        for d, r in df.iterrows():
+        # adj_close = 분할 등 주식수 변동만 조정 (배당 미조정 — PR 정합, D-08).
+        # 야후 "Adj Close"(분할+배당)는 TR 성향이라 사용 금지 → 분할계수만 역누적해 재구성
+        splits = t.splits
+        dates = pd.to_datetime(df.index).tz_localize(None) if getattr(df.index, "tz", None) else pd.to_datetime(df.index)
+        factor = pd.Series(1.0, index=range(len(df)))
+        if splits is not None and len(splits):
+            sp_dates = pd.to_datetime(splits.index).tz_localize(None) if getattr(splits.index, "tz", None) else pd.to_datetime(splits.index)
+            for sd, ratio in zip(sp_dates, splits.values):
+                if float(ratio) > 0:
+                    factor[list(dates < sd)] /= float(ratio)   # 분할일 이전 가격을 비율로 역조정
+        for (d, r), f in zip(df.iterrows(), factor):
             rows.append({"security_id": tk, "market": "US", "market_date": d.strftime("%Y-%m-%d"),
                          "raw_close": round(float(r["Close"]), 4), "volume": float(r["Volume"]),
-                         "adj_close": round(float(r["Adj Close"]), 4) if "Adj Close" in df.columns else None})
-            # adj_close = 수정주가 — 지수 평가·수익률 전용 (D-07). raw_close는 거래대금 재구성 전용
+                         "adj_close": round(float(r["Close"]) * f, 4)})
         # 상장일 확인 — 야후 firstTradeDate는 참고값. 2025-10 이전 상장이면 파일럿에 충분, 이후면 원출처 확인 필요
         ftd = t.info.get("firstTradeDateEpochUtc") or t.info.get("firstTradeDateMilliseconds")
         if ftd:
-            # 판별: 1e11 초과면 ms (초 단위로는 서기 5000년대라 불가능). 예: TER 99153000000ms=1973-02-21
-            ftd = pd.Timestamp(ftd, unit="ms" if ftd > 1e11 else "s").strftime("%Y-%m-%d")
+            # 판별: 1e10 초과면 ms — 초 단위 1e10은 서기 2286년이라 실존 상장일 불가. 예: TER 99153000000ms=1973-02-21
+            ftd = pd.Timestamp(ftd, unit="ms" if ftd > 1e10 else "s").strftime("%Y-%m-%d")
         listing_rows.append({"security_id": tk, "listing_date": ftd or "",
                              "validation_status": "PASS" if ftd and ftd < START else "REVIEW_REQUIRED",
                              "unresolved_reason": "" if ftd and ftd < START else "상장일 원출처(EDGAR·거래소) 확인 필요",
