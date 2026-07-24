@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>파일럿 지수 시각화 (발표용) — v0.9-pilot</title>
+<style>
+:root{--ink:#222;--muted:#5b6472;--line:#dfe4ec;--blue:#1e2761;--gold:#b07a1e;--green:#e6f4ea;--green-ink:#1a7f37;--red:#fdeaea;--red-ink:#9b2c2c;--gray:#f2f4f7}
+*{box-sizing:border-box}
+body{font-family:"Segoe UI","Malgun Gothic",Arial,sans-serif;margin:24px;background:#fff;color:var(--ink);max-width:1000px;line-height:1.45}
+a{color:var(--blue)}
+.wikinav{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.8rem;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.wikinav a{text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted);background:#fafbfc}
+.wikinav a.home{border-color:var(--blue);color:var(--blue);font-weight:700}
+.wikinav a:hover{background:#eef1f8}
+.wikinav .sep{color:#c9ccd6}
+h1{font-size:1.35rem;margin:0 0 4px}
+h2{font-size:1rem;margin:0}
+.sub,.meta,.foot{color:var(--muted);font-size:.82rem}
+.meta{margin:8px 0 16px}
+code{background:#f2f4f7;border-radius:4px;padding:1px 5px;font-size:.8rem}
+.top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.metric{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fafbfc}
+.metric b{display:block;font-size:1.4rem;color:var(--blue)}
+.metric .d{font-size:.75rem;margin-top:2px}.up{color:var(--green-ink)}.down{color:var(--red-ink)}
+.metric span{font-size:.76rem;color:var(--muted)}
+.panel{border:1px solid var(--line);border-radius:8px;margin:14px 0;overflow:hidden}
+.panel>header{display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--blue);color:#fff;padding:10px 14px}
+.panel>.body{padding:14px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:2px 2px 10px;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:20px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{background:#f7f8fa;color:var(--muted);font-weight:700;text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);font-size:.76rem}
+td{padding:8px 12px;border-bottom:1px solid #eef0f4;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.note{color:var(--muted);font-size:.8rem}
+tr.warn-row{background:#fff7f7}
+.mk{font-weight:700;font-size:.72rem;padding:0 5px;border-radius:4px}
+.mk.kr{color:#1e3a8a;background:#e7edfb}.mk.us{color:#8a4b1e;background:#f7ece1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.excbox{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.exch{background:#f7f8fa;padding:8px 12px;font-size:.82rem;color:var(--muted);border-bottom:1px solid var(--line)}
+.bridge{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fafbfc;margin:14px 0;font-size:.84rem}
+.bridge b{color:var(--red-ink)}
+.foot{margin-top:10px}
+@media(max-width:760px){body{margin:14px}.top{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="wikinav">
+  <a class="home" href="index.html">📚 문서 위키 홈</a>
+  <span class="sep">│</span>
+  <span style="color:var(--muted)">연동 페이지:</span>
+  <a href="role-flow.html">역할 순서도</a>
+  <a href="pilot-status.html">진행 상태판</a>
+  <span style="border:1px solid var(--blue);border-radius:999px;padding:3px 10px;color:#fff;background:var(--blue);font-weight:700">지수 시각화 (현재)</span>
+</nav>
+
+<h1>파일럿 지수 시각화 <span style="font-size:.9rem;color:var(--muted)">(발표용)</span></h1>
+<div class="sub"><a href="pilot-status.html">진행 상태판</a>의 5단계(발표·제출) 산출물 시각화입니다. 엔진 v0 드라이런 결과를 발표 화면용으로 정리했습니다.</div>
+<div class="meta">기준: 2026-07-24 · rule_version <code>v0.9-pilot</code>(잠정) · 대표 검토일 2026-03-31 / 2026-06-30 · 기준값 1,000 · PR·원화·무헤지 · 합성 BM <b>KRX 공식 KOSPI200</b> 50% + Russell3000 50%</div>
+
+<div class="top">
+  <div class="metric"><b>1,271</b><div class="d up">+27.11%</div><span>지수 종가</span></div>
+  <div class="metric"><b>1,418</b><div class="d up">+41.78%</div><span>합성 BM 종가</span></div>
+  <div class="metric"><b style="color:var(--red-ink)">−146.6</b><div class="d down">BM 대비 언더퍼폼</div><span>누적 alpha</span></div>
+  <div class="metric"><b>15<span style="font-size:.9rem;color:var(--muted)"> / 18</span></b><div class="d">6셀 모두 충족</div><span>선정 종목</span></div>
+</div>
+
+<div class="panel">
+<header><h2>1 · 지수 vs 합성 BM 추이</h2><span style="font-size:.76rem">2026-04-01 ~ 06-30 · 59 개장일</span></header>
+<div class="body">
+  <div class="legend"><span><i style="background:#1e2761"></i>본 지수</span><span><i style="background:#b07a1e"></i>합성 BM(KRX 공식)</span><span><i style="background:#c9ccd6"></i>기준 1,000</span></div>
+  <svg viewBox="0 0 900 300" width="100%" role="img" aria-label="지수 vs 합성 BM 추이">
+<rect x="58" y="14" width="826" height="260" fill="#fbfcfe" stroke="#e6eaf1"/>
+<line x1="58" y1="246.1" x2="884" y2="246.1" stroke="#c9ccd6" stroke-dasharray="4 4"/>
+<text x="50" y="249.1" text-anchor="end" font-size="10" fill="#8b93a3">1,000</text>
+<line x1="58" y1="199.7" x2="884" y2="199.7" stroke="#eef1f6"/>
+<text x="50" y="202.7" text-anchor="end" font-size="10" fill="#8b93a3">1,100</text>
+<line x1="58" y1="153.3" x2="884" y2="153.3" stroke="#eef1f6"/>
+<text x="50" y="156.3" text-anchor="end" font-size="10" fill="#8b93a3">1,200</text>
+<line x1="58" y1="106.9" x2="884" y2="106.9" stroke="#eef1f6"/>
+<text x="50" y="109.9" text-anchor="end" font-size="10" fill="#8b93a3">1,300</text>
+<line x1="58" y1="60.4" x2="884" y2="60.4" stroke="#eef1f6"/>
+<text x="50" y="63.4" text-anchor="end" font-size="10" fill="#8b93a3">1,400</text>
+<line x1="58" y1="14.0" x2="884" y2="14.0" stroke="#eef1f6"/>
+<text x="50" y="17.0" text-anchor="end" font-size="10" fill="#8b93a3">1,500</text>
+<line x1="58.0" y1="14" x2="58.0" y2="274" stroke="#eef1f6"/>
+<text x="61.0" y="290" font-size="10" fill="#8b93a3">4월</text>
+<line x1="357.1" y1="14" x2="357.1" y2="274" stroke="#eef1f6"/>
+<text x="360.1" y="290" font-size="10" fill="#8b93a3">5월</text>
+<line x1="613.4" y1="14" x2="613.4" y2="274" stroke="#eef1f6"/>
+<text x="616.4" y="290" font-size="10" fill="#8b93a3">6월</text>
+<text x="50" y="240.1" text-anchor="end" font-size="9" fill="#c9ccd6">기준 1,000</text>
+<polyline fill="none" stroke="#b07a1e" stroke-width="2" points="58.0,246.1 72.2,260.4 86.5,248.8 100.7,246.1 115.0,222.8 129.2,231.2 143.4,227.1 157.7,227.0 171.9,215.2 186.2,209.2 200.4,203.9 214.7,202.8 228.9,200.6 243.1,195.4 257.4,193.2 271.6,190.0 285.9,188.9 300.1,181.6 314.3,183.5 328.6,181.6 342.8,182.6 357.1,165.1 371.3,139.0 385.6,136.8 399.8,135.5 414.0,115.4 428.3,122.8 442.5,109.1 456.8,98.8 471.0,125.8 485.2,122.0 499.5,134.2 513.7,133.1 528.0,103.1 542.2,102.8 556.4,89.5 570.7,79.5 584.9,80.8 599.2,65.2 613.4,48.8 627.7,44.7 641.9,52.6 656.1,81.0 670.4,109.2 684.6,78.5 698.9,106.3 713.1,99.7 727.3,80.6 741.6,58.0 755.8,52.4 770.1,47.7 784.3,32.9 798.6,24.8 812.8,72.5 827.0,58.6 841.3,34.2 855.5,57.8 869.8,58.9 884.0,52.2"/>
+<polyline fill="none" stroke="#1e2761" stroke-width="2.4" points="58.0,246.1 72.2,250.5 86.5,236.8 100.7,235.1 115.0,210.6 129.2,219.5 143.4,205.6 157.7,215.8 171.9,208.5 186.2,208.4 200.4,204.2 214.7,206.6 228.9,205.5 243.1,200.8 257.4,187.1 271.6,185.4 285.9,178.0 300.1,177.0 314.3,186.0 328.6,185.9 342.8,180.9 357.1,174.3 371.3,169.8 385.6,195.2 399.8,185.2 414.0,178.7 428.3,182.2 442.5,174.0 456.8,160.6 471.0,182.9 485.2,197.1 499.5,204.0 513.7,191.3 528.0,164.6 542.2,150.4 556.4,139.7 570.7,127.1 584.9,123.1 599.2,92.8 613.4,75.8 627.7,79.8 641.9,93.0 656.1,125.9 670.4,137.5 684.6,144.2 698.9,158.7 713.1,137.7 727.3,128.4 741.6,100.2 755.8,109.0 770.1,108.6 784.3,104.9 798.6,102.0 812.8,146.5 827.0,149.9 841.3,149.9 855.5,170.5 869.8,137.7 884.0,120.3"/>
+<circle cx="884.0" cy="120.3" r="3.2" fill="#1e2761"/>
+<circle cx="884.0" cy="52.2" r="3.2" fill="#b07a1e"/>
+<text x="880.0" y="134.3" text-anchor="end" font-size="10.5" font-weight="700" fill="#1e2761">지수 1,271</text>
+<text x="880.0" y="46.2" text-anchor="end" font-size="10.5" font-weight="700" fill="#b07a1e">BM 1,418</text>
+</svg>
+  <div style="font-size:.8rem;color:var(--muted);margin:10px 2px 2px">누적 alpha (지수 − BM, 원화 지수포인트)</div>
+  <svg viewBox="0 0 900 120" width="100%" role="img" aria-label="누적 alpha">
+<polygon points="58.0,26.1 58.0,26.1 72.2,20.4 86.5,19.2 100.7,19.7 115.0,19.1 129.2,19.4 143.4,13.7 157.7,19.7 171.9,22.2 186.2,25.7 200.4,26.3 214.7,28.4 228.9,29.0 243.1,29.2 257.4,22.6 271.6,23.5 285.9,19.8 300.1,23.5 314.3,27.6 328.6,28.6 342.8,25.2 357.1,31.5 371.3,44.0 385.6,60.0 399.8,54.9 414.0,62.7 428.3,60.5 442.5,63.7 456.8,61.9 471.0,59.2 485.2,69.6 499.5,66.5 513.7,59.8 528.0,61.7 542.2,53.6 556.4,55.2 570.7,53.7 584.9,50.6 599.2,42.1 613.4,41.7 627.7,46.4 641.9,49.5 656.1,52.1 670.4,42.5 684.6,64.1 698.9,56.4 713.1,48.1 727.3,53.8 741.6,50.5 755.8,58.9 770.1,61.4 784.3,67.8 798.6,70.8 812.8,69.0 827.0,78.9 841.3,93.1 855.5,91.4 869.8,71.7 884.0,65.5 884.0,26.1" fill="#9b2c2c" fill-opacity="0.10"/>
+<line x1="58" y1="26.1" x2="884" y2="26.1" stroke="#c9ccd6" stroke-dasharray="4 4"/>
+<text x="50" y="29.1" text-anchor="end" font-size="10" fill="#8b93a3">0</text>
+<line x1="58" y1="79.9" x2="884" y2="79.9" stroke="#f1eaea"/>
+<text x="50" y="82.9" text-anchor="end" font-size="10" fill="#b98a8a">-200</text>
+<line x1="58" y1="53.0" x2="884" y2="53.0" stroke="#f1eaea"/>
+<text x="50" y="56.0" text-anchor="end" font-size="10" fill="#b98a8a">-100</text>
+<polyline fill="none" stroke="#9b2c2c" stroke-width="2" points="58.0,26.1 72.2,20.4 86.5,19.2 100.7,19.7 115.0,19.1 129.2,19.4 143.4,13.7 157.7,19.7 171.9,22.2 186.2,25.7 200.4,26.3 214.7,28.4 228.9,29.0 243.1,29.2 257.4,22.6 271.6,23.5 285.9,19.8 300.1,23.5 314.3,27.6 328.6,28.6 342.8,25.2 357.1,31.5 371.3,44.0 385.6,60.0 399.8,54.9 414.0,62.7 428.3,60.5 442.5,63.7 456.8,61.9 471.0,59.2 485.2,69.6 499.5,66.5 513.7,59.8 528.0,61.7 542.2,53.6 556.4,55.2 570.7,53.7 584.9,50.6 599.2,42.1 613.4,41.7 627.7,46.4 641.9,49.5 656.1,52.1 670.4,42.5 684.6,64.1 698.9,56.4 713.1,48.1 727.3,53.8 741.6,50.5 755.8,58.9 770.1,61.4 784.3,67.8 798.6,70.8 812.8,69.0 827.0,78.9 841.3,93.1 855.5,91.4 869.8,71.7 884.0,65.5"/>
+<text x="61.0" y="112" font-size="10" fill="#8b93a3">4월</text>
+<text x="360.1" y="112" font-size="10" fill="#8b93a3">5월</text>
+<text x="616.4" y="112" font-size="10" fill="#8b93a3">6월</text>
+<text x="880.0" y="80.5" text-anchor="end" font-size="10.5" font-weight="700" fill="#9b2c2c">alpha -147</text>
+</svg>
+  <div class="foot foot-note" style="font-size:.78rem;color:var(--muted)">두 계열 모두 2026-04-01 = 1,000 리베이스. 구간 내 지수가 한때 BM을 앞섰으나(alpha 최고 +46) 이후 벌어져 종료 시 −147.</div>
+</div>
+</div>
+
+<div class="panel">
+<header><h2>2 · 셀 구성·가중</h2><span style="font-size:.76rem">6셀 각 1/6 · 셀 내 동일가중(잠정)</span></header>
+<div class="body">
+<table>
+<tr><th>셀</th><th class="num">종목수</th><th class="num">셀 가중</th><th class="num">종목당</th><th>비고</th></tr>
+<tr><td><span class="mk kr">KR</span> · AI로보틱스</td><td class="num">2</td><td class="num">16.67%</td><td class="num">8.33%</td><td class="note">018260 탈락</td></tr>
+<tr><td><span class="mk kr">KR</span> · 에너지·전력</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note">—</td></tr>
+<tr><td><span class="mk kr">KR</span> · 우주방산</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note">—</td></tr>
+<tr><td><span class="mk us">US</span> · AI로보틱스</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note">—</td></tr>
+<tr><td><span class="mk us">US</span> · 에너지·전력</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note">—</td></tr>
+<tr class="warn-row"><td><span class="mk us">US</span> · 우주방산</td><td class="num">1</td><td class="num">16.67%</td><td class="num">16.67%</td><td class="note">1종목 집중</td></tr>
+</table>
+<div class="foot" style="font-size:.78rem;color:var(--muted)">가중 총합 = 1.000000(검산 통과) · 셀 부족·재배분 0건 · WEIGHTING_STATUS=TEMPORARY(가중 H 확정 전)</div>
+</div>
+</div>
+
+<div class="panel">
+<header><h2>3 · 제외 종목·사유 (회차별)</h2><span style="font-size:.76rem">정량 게이트</span></header>
+<div class="body">
+<div class="grid2"><div class="excbox"><div class="exch"><b>2026-03-31</b> · 선정 <b>15</b>/18</div><table><tr><th>제외</th><th>시장</th><th>사유</th></tr><tr><td>018260</td><td><span class="mk kr">KR</span></td><td class="note">ADTV90 P10 미달</td></tr>
+<tr><td>SPCX</td><td><span class="mk us">US</span></td><td class="note">시즈닝 미충족(상장 6/12)</td></tr>
+<tr><td>ATI</td><td><span class="mk us">US</span></td><td class="note">ADTV90 P10 미달</td></tr></table></div><div class="excbox"><div class="exch"><b>2026-06-30</b> · 선정 <b>15</b>/18</div><table><tr><th>제외</th><th>시장</th><th>사유</th></tr><tr><td>018260</td><td><span class="mk kr">KR</span></td><td class="note">ADTV90 P10 미달</td></tr>
+<tr><td>SPCX</td><td><span class="mk us">US</span></td><td class="note">시즈닝 미충족(관측 12일)</td></tr>
+<tr><td>KTOS</td><td><span class="mk us">US</span></td><td class="note">ADTV90 P10 미달</td></tr></table></div></div>
+<div class="foot" style="font-size:.78rem;color:var(--muted)">SPCX는 양 회차 시즈닝(유효관측 90일) 미충족. US 우주방산 P10 탈락은 회차별 교대(3-31 ATI · 6-30 KTOS).</div>
+</div>
+</div>
+
+<div class="panel">
+<header><h2>4 · ADTV90 잠정 하한 (시장별 P10)</h2><span style="font-size:.76rem">official method = ZERO</span></header>
+<div class="body">
+<table><tr><th>회차</th><th class="num">KR P10 (원)</th><th class="num">US P10 (USD)</th></tr><tr><td>2026-03-31</td><td class="num">73,914,096,486</td><td class="num">308,975,201</td></tr>
+<tr><td>2026-06-30</td><td class="num">126,878,040,848</td><td class="num">325,377,655</td></tr></table>
+</div>
+</div>
+
+<div class="bridge">
+<b>발표 시 주의(전원 확인/이월):</b>
+이 수치는 <b>파이프라인 검증·비교시험 입력 확보용 잠정치</b>이며 성과판정이 아닙니다(간이투자설명서 [백테스트 후 채움] 칸에 넣지 않음).
+<b>A-2 "종일 거래정지일 0 반영"</b>은 전원 확인 대기 안건이고, <b>US 우주방산 셀 16.67% 1종목 집중</b>은 상한(NO_CAP) 미적용 파일럿 한계입니다.
+P10 하한은 9종목 소규모 유니버스의 기계적 절단으로, 절대금액 승인은 정식 이월(#16)입니다.
+</div>
+
+<div class="foot">
+근거 산출물: <code>06_코드/engine/pilot_run/output_krxbm/</code> · 병합 <code>build_pilot_inputs.py</code> · BM <code>input_data/bm_kr_krx_official.csv</code>(KRX 공식, 야후 예비값과 180일 0.00% 일치).
+전체 문서는 <a href="index.html">문서 위키 홈</a> 및 <a href="pilot-status.html">진행 상태판</a>에서 확인하세요.
+</div>
+
+</body>
+</html>
