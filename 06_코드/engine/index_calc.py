@@ -6,9 +6,19 @@ import config as C
 
 
 def _krw_close(prices: pd.DataFrame, fx: pd.DataFrame) -> pd.DataFrame:
-    """미국 종목·BM 다리를 ECOS 환율로 원화 환산 (fx: [market_date, fx_rate])"""
+    """지수 평가가격을 ECOS 환율로 원화 환산.
+    평가가격 = adj_close(수정주가) 우선 — D-07: 수익률 계산은 수정주가 전용, 원주가는 거래대금 전용.
+    adj_close 부재 시 raw_close 폴백(경고) — 기업행사 발생 종목의 지수 왜곡 가능, 산출물에 기록할 것."""
     df = prices.merge(fx, on="market_date", how="left")
-    df["close_krw"] = df["raw_close"].where(df["market"] == "KR", df["raw_close"] * df["fx_rate"])
+    if "adj_close" in df.columns and df["adj_close"].notna().any():
+        px = df["adj_close"].fillna(df["raw_close"])
+        src = "ADJ_CLOSE"
+    else:
+        px = df["raw_close"]
+        src = "RAW_CLOSE_FALLBACK"
+        print("[WARN] adj_close 없음 — raw_close로 지수 평가 (D-07 위반 상태, 수정주가 확보 후 재산출 필요)")
+    df["valuation_price_source"] = src
+    df["close_krw"] = px.where(df["market"] == "KR", px * df["fx_rate"])
     return df
 
 
