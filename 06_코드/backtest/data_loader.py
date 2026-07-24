@@ -72,18 +72,22 @@ def _epoch_to_date(ftd):
     return ""
 
 
-# --- 미국: 가격(비조정) + 실제 상장일 ---
+# --- 미국: raw_close·adj_close 동시 수집 + 실제 상장일 ---
 def _us_prices(sid, start, end):
     import yfinance as yf
     t = yf.Ticker(sid)
-    h = _retry(lambda: t.history(start=start, end=end, auto_adjust=False))   # 비조정 Close·Volume
+    h = _retry(lambda: t.history(start=start, end=end, auto_adjust=False))
     if h is None or h.empty:
         return None, None
     h = h.reset_index()
+    # 용도 분리(팀 결정): raw_close=Close(거래대금 재구성용) · adj_close=Adj Close(지수·수익률용)
+    # 주의: 야후 Adj Close 는 배당까지 조정(TR 성향) — PR 지수 취지와 차이 가능, sources 에 캐비엇 기록.
     px = pd.DataFrame({
         "security_id": sid, "market": "US",
         "market_date": pd.to_datetime(h["Date"]).dt.strftime("%Y-%m-%d"),
-        "raw_close": h["Close"].round(4), "volume": h["Volume"].fillna(0).astype("int64"),
+        "raw_close": h["Close"].round(4),
+        "adj_close": h["Adj Close"].round(4) if "Adj Close" in h.columns else h["Close"].round(4),
+        "volume": h["Volume"].fillna(0).astype("int64"),
     })
     # 상장일: 야후 firstTradeDate(epoch) → 그럴듯한 연도로 변환. 관측창 이전이면 시즈닝 충분.
     info = t.info or {}
@@ -95,17 +99,26 @@ def _us_prices(sid, start, end):
     return px, rec
 
 
-# --- 한국: 가격(비조정) + 상장일 프록시 ---
+# --- 한국: raw_close(비조정)·adj_close(수정주가) 동시 수집 + 상장일 프록시 ---
 def _kr_prices(sid, start, end):
     from pykrx import stock
     s, e = start.replace("-", ""), end.replace("-", "")
-    df = _retry(lambda: stock.get_market_ohlcv(s, e, sid))
-    if df is None or df.empty:
+    # 용도 분리(팀 결정): 두 번 조회 — adjusted=True(수정주가=adj_close) · False(비조정=raw_close)
+    adj = _retry(lambda: stock.get_market_ohlcv(s, e, sid, adjusted=True))
+    raw = _retry(lambda: stock.get_market_ohlcv(s, e, sid, adjusted=False))
+    if adj is None or adj.empty:
         return None, None
-    df = df.reset_index().rename(columns={"날짜": "market_date", "종가": "raw_close", "거래량": "volume"})
-    df["market_date"] = pd.to_datetime(df["market_date"]).dt.strftime("%Y-%m-%d")
-    px = pd.DataFrame({"security_id": sid, "market": "KR", "market_date": df["market_date"],
-                       "raw_close": df["raw_close"].round(2), "volume": df["volume"].astype("int64")})
+    adj = adj.reset_index().rename(columns={"날짜": "market_date", "종가": "adj_close", "거래량": "volume"})
+    adj["market_date"] = pd.to_datetime(adj["market_date"]).dt.strftime("%Y-%m-%d")
+    px = pd.DataFrame({"security_id": sid, "market": "KR", "market_date": adj["market_date"],
+                       "adj_close": adj["adj_close"].round(2), "volume": adj["volume"].astype("int64")})
+    if raw is not None and not raw.empty:
+        raw = raw.reset_index().rename(columns={"날짜": "market_date", "종가": "raw_close"})
+        raw["market_date"] = pd.to_datetime(raw["market_date"]).dt.strftime("%Y-%m-%d")
+        px = px.merge(raw[["market_date", "raw_close"]], on="market_date", how="left")
+    else:
+        px["raw_close"] = px["adj_close"]   # 비조정 조회 실패 시 임시 동일(분할 없으면 무해)
+    px = px[["security_id", "market", "market_date", "raw_close", "adj_close", "volume"]]
     # 상장일: pykrx 직접 API 부재 → 관측된 최초 거래일을 프록시로 사용(검토 필요 플래그).
     #         관측창 이전이면 시즈닝 판정에 충분(실상장일은 근형 인계본으로 교체 예정).
     listing = px["market_date"].min()
@@ -222,6 +235,9 @@ def build_inputs(out_dir: str, basket_path: str = DEFAULT_BASKET,
     # 출처메모: 독립 QA·재현성 검증 기준 (팀 INPUT_MANIFEST 와 대조용)
     sources = {
         "rule_version": "v0.9-pilot", "window": [start, end],
+        "price_columns": ("raw_close(비조정)·adj_close(수정주가) 모두 보존 [팀 결정]. "
+                          "지수·수익률·분할연속성=adj_close, 거래대금 재구성=raw_close×거래량. "
+                          "캐비엇: 미국 adj_close=야후 AdjClose(배당조정 포함=TR성향), PR 지수와 차이 가능 — 룰북 확인 필요"),
         "trading_value": "RECONSTRUCTED (공식 KRX 로그인 미보유 — 재구성 위장 금지)",
         "fx": fx_src, "bm_kr": bmkr_src, "bm_us": bmus_src,
         "listings": "US=YAHOO_REFERENCE, KR=PYKRX_FIRST_OBS_PROXY (실상장일 근형 인계본 교체 예정)",
