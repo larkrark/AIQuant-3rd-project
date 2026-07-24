@@ -6,12 +6,9 @@ import config as C
 
 
 def _krw_close(prices: pd.DataFrame, fx: pd.DataFrame) -> pd.DataFrame:
-    """미국 종목·BM 다리를 ECOS 환율로 원화 환산 (fx: [market_date, fx_rate]).
-    지수·수익률 산출가는 adj_close(수정주가) 사용 — 액면분할 전후 연속성 확보(팀 결정).
-    adj_close 미제공 입력은 raw_close 로 하위호환 폴백. (거래대금 재구성은 market_state 가 raw_close 사용)"""
+    """미국 종목·BM 다리를 ECOS 환율로 원화 환산 (fx: [market_date, fx_rate])"""
     df = prices.merge(fx, on="market_date", how="left")
-    price = df["adj_close"] if "adj_close" in df.columns else df["raw_close"]
-    df["close_krw"] = price.where(df["market"] == "KR", price * df["fx_rate"])
+    df["close_krw"] = df["raw_close"].where(df["market"] == "KR", df["raw_close"] * df["fx_rate"])
     return df
 
 
