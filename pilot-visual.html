@@ -30,6 +30,9 @@ code{background:#f2f4f7;border-radius:4px;padding:1px 5px;font-size:.8rem}
 .legend{display:flex;gap:16px;flex-wrap:wrap;margin:2px 2px 10px;font-size:.8rem;color:var(--muted)}
 .legend i{display:inline-block;width:20px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
 table{width:100%;border-collapse:collapse;font-size:.86rem}
+tr.rok td{background:#f6fbf7}
+tr.rex td{background:#fdf3f3}
+tr.hl td{background:#fff4dd}
 th{background:#f7f8fa;color:var(--muted);font-weight:700;text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);font-size:.76rem}
 td{padding:8px 12px;border-bottom:1px solid #eef0f4;vertical-align:top}
 tr:last-child td{border-bottom:none}
@@ -156,8 +159,69 @@ tr.warn-row{background:#fff7f7}
 </div>
 </div>
 
+
+<div class="panel">
+<header><h2>5 · 데이터 → 게이트 → 인디케이터 추적 (실데이터)</h2><span style="font-size:.76rem">rule_version v0.9-pilot · 회차 2026-06-30</span></header>
+<div class="body">
+<div class="meta" style="margin:0 0 10px">하나의 원자료가 상태코드 → 관측창 집계 → 인디케이터 → 게이트 판정 → 셀 가중이 되는 전 과정을 실제 산출 테이블로 보입니다. 예시 종목: <b>010120</b>(4월 종일정지 3일 — 규칙이 실제로 작동한 사례).</div>
+
+<div style="font-weight:700;margin:6px 0 4px">STEP 1 — 일별 원자료 + 상태코드 부여 <span style="font-weight:400;color:var(--muted);font-size:.78rem">(#15: 종일정지 확인 시 TRADING_HALT 우선 · 제59조: 한국 KRX 거래대금 우선 + 근사 검산 오차)</span></div>
+<table><tr><th>일자</th><th class="num">원종가</th><th class="num">거래량</th><th class="num">거래대금(KRX)</th><th>daily_market_state</th><th>비고</th></tr>
+<tr><td>2026-04-06</td><td class="num">799,000</td><td class="num">117,941</td><td class="num">954억</td><td><b>TRADED</b></td><td class="note">KRX 제공값 · 검산 오차 1.23%</td></tr>
+<tr><td>2026-04-07</td><td class="num">788,000</td><td class="num">122,309</td><td class="num">963억</td><td><b>TRADED</b></td><td class="note">KRX 제공값 · 검산 오차 0.12%</td></tr>
+<tr class="hl"><td>2026-04-08</td><td class="num">788,000</td><td class="num">0</td><td class="num">—</td><td><b>TRADING_HALT</b></td><td class="note">종일정지 — TRADING_HALT 우선 적용</td></tr>
+<tr class="hl"><td>2026-04-09</td><td class="num">788,000</td><td class="num">0</td><td class="num">—</td><td><b>TRADING_HALT</b></td><td class="note">종일정지 — TRADING_HALT 우선 적용</td></tr>
+<tr class="hl"><td>2026-04-10</td><td class="num">788,000</td><td class="num">0</td><td class="num">—</td><td><b>TRADING_HALT</b></td><td class="note">종일정지 — TRADING_HALT 우선 적용</td></tr>
+<tr><td>2026-04-13</td><td class="num">179,200</td><td class="num">2,572,650</td><td class="num">4,585억</td><td><b>TRADED</b></td><td class="note">KRX 제공값 · 검산 오차 0.56%</td></tr>
+<tr><td>2026-04-14</td><td class="num">185,600</td><td class="num">2,148,525</td><td class="num">4,053억</td><td><b>TRADED</b></td><td class="note">KRX 제공값 · 검산 오차 1.61%</td></tr>
+</table>
+<div class="foot" style="font-size:.76rem;margin:4px 0 12px">⚠ 정지 해제일(4/13) 원종가 급변(788,000→179,200)은 기업행사(액면분할 추정) 미조정분으로 확인 중 — 본 페이지의 지수·BM 수치는 <b>평가가격 폴백(valuation_price_source=RAW_CLOSE_FALLBACK)</b> 상태의 값이며, 한국 수정주가 확보·재산출 시 일괄 갱신 예정. 미국분 adj_close는 확보 완료(관측 기간 내 분할 0건 확인).</div>
+
+<div style="font-weight:700;margin:10px 0 4px">STEP 2 — 관측창 90개 개장일 집계 → 인디케이터 <span style="font-weight:400;color:var(--muted);font-size:.78rem">(D-06 시즈닝=유효관측일수 · D-07 ADTV90 0 반영 공식 + 분모 제외 진단)</span></div>
+<table><tr><th>종목</th><th class="num">관측</th><th class="num">TRADED</th><th class="num">ZERO</th><th class="num">HALT</th><th class="num">MISS</th><th class="num">시즈닝 일수</th><th>시즈닝 판정</th><th class="num">ADTV90 공식(0반영)</th><th class="num">분모제외(진단)</th></tr>
+<tr class="rok"><td>010120</td><td class="num">90</td><td class="num">87</td><td class="num">0</td><td class="num"><b>3</b></td><td class="num">0</td><td class="num">176</td><td>SEASONED</td><td class="num"><b>2,462억</b></td><td class="num">2,547억</td></tr>
+<tr class="rex"><td>SPCX</td><td class="num">12</td><td class="num">12</td><td class="num">0</td><td class="num"><b>0</b></td><td class="num">0</td><td class="num">12</td><td>SEASONING_INCOMPLETE</td><td class="num"><b>—</b></td><td class="num">—</td></tr>
+</table>
+<div class="foot" style="font-size:.76rem;margin:4px 0 12px">010120: 정지 3일이 0으로 반영되어 공식값(2,462억)이 진단값(2,547억)보다 낮음 — 두 값의 차이가 #15 비교시험의 입력. SPCX: 관측 12일 &lt; 90 → 시즈닝 단계에서 정지(인디케이터 미산출).</div>
+
+<div style="font-weight:700;margin:10px 0 4px">STEP 3 — 정량 게이트 판정 (18종목 전체) <span style="font-weight:400;color:var(--muted);font-size:.78rem">(시즈닝 ○ AND ADTV90 ≥ 시장별 P10 잠정 하한 → 통과)</span></div>
+<table><tr><th>종목</th><th>시장</th><th>테마</th><th>시즈닝</th><th class="num">ADTV90 공식</th><th class="num">P10 하한(잠정)</th><th>판정</th><th>제외 사유</th></tr>
+<tr class="rex"><td>018260</td><td><span class="mk kr">KR</span></td><td>AI·로보틱스</td><td>○</td><td class="num">1,149억</td><td class="num">1,269억</td><td><b style="color:var(--red-ink)">제외</b></td><td class="note">ADTV90 &lt; P10 잠정 하한</td></tr>
+<tr class="rok"><td>064400</td><td><span class="mk kr">KR</span></td><td>AI·로보틱스</td><td>○</td><td class="num">1,412억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>307950</td><td><span class="mk kr">KR</span></td><td>AI·로보틱스</td><td>○</td><td class="num">1,299억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>010120</td><td><span class="mk kr">KR</span></td><td>에너지·전력</td><td>○</td><td class="num">2,462억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>267260</td><td><span class="mk kr">KR</span></td><td>에너지·전력</td><td>○</td><td class="num">1,902억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>298040</td><td><span class="mk kr">KR</span></td><td>에너지·전력</td><td>○</td><td class="num">1,816억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>012450</td><td><span class="mk kr">KR</span></td><td>우주·방산</td><td>○</td><td class="num">3,555억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>064350</td><td><span class="mk kr">KR</span></td><td>우주·방산</td><td>○</td><td class="num">1,831억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>079550</td><td><span class="mk kr">KR</span></td><td>우주·방산</td><td>○</td><td class="num">3,237억</td><td class="num">1,269억</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>ALAB</td><td><span class="mk us">US</span></td><td>AI·로보틱스</td><td>○</td><td class="num">$1,338.0M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>ANET</td><td><span class="mk us">US</span></td><td>AI·로보틱스</td><td>○</td><td class="num">$1,300.3M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>TER</td><td><span class="mk us">US</span></td><td>AI·로보틱스</td><td>○</td><td class="num">$1,433.1M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>APH</td><td><span class="mk us">US</span></td><td>에너지·전력</td><td>○</td><td class="num">$1,369.4M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>ETN</td><td><span class="mk us">US</span></td><td>에너지·전력</td><td>○</td><td class="num">$1,021.6M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>GEV</td><td><span class="mk us">US</span></td><td>에너지·전력</td><td>○</td><td class="num">$2,603.9M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rok"><td>ATI</td><td><span class="mk us">US</span></td><td>우주·방산</td><td>○</td><td class="num">$325.9M</td><td class="num">$325.4M</td><td><b style="color:var(--green-ink)">통과</b></td><td class="note"></td></tr>
+<tr class="rex"><td>KTOS</td><td><span class="mk us">US</span></td><td>우주·방산</td><td>○</td><td class="num">$324.3M</td><td class="num">$325.4M</td><td><b style="color:var(--red-ink)">제외</b></td><td class="note">ADTV90 &lt; P10 잠정 하한</td></tr>
+<tr class="rex"><td>SPCX</td><td><span class="mk us">US</span></td><td>우주·방산</td><td>✕</td><td class="num">—</td><td class="num">$325.4M</td><td><b style="color:var(--red-ink)">제외</b></td><td class="note">시즈닝 미충족(관측 12일)</td></tr>
+</table>
+
+<div style="font-weight:700;margin:10px 0 4px">STEP 4 — 통과 15종목 → 6셀 배정·동일가중 <span style="font-weight:400;color:var(--muted);font-size:.78rem">(D-10: 테마 1:1:1 × 지역 50:50 = 셀 각 1/6, 셀 내 동일가중 잠정)</span></div>
+<table><tr><th>셀</th><th class="num">종목 수</th><th class="num">셀 목표비중</th><th class="num">종목당 비중</th><th>비고</th></tr>
+<tr><td>KR_AI_ROBOTICS</td><td class="num">2</td><td class="num">16.67%</td><td class="num">8.33%</td><td class="note"></td></tr>
+<tr><td>KR_ENERGY_POWER</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note"></td></tr>
+<tr><td>KR_SPACE_DEFENSE</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note"></td></tr>
+<tr><td>US_AI_ROBOTICS</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note"></td></tr>
+<tr><td>US_ENERGY_POWER</td><td class="num">3</td><td class="num">16.67%</td><td class="num">5.56%</td><td class="note"></td></tr>
+<tr class="hl"><td>US_SPACE_DEFENSE</td><td class="num">1</td><td class="num">16.67%</td><td class="num">16.67%</td><td class="note">1종목 집중 — 셀 전체가 단일 종목</td></tr>
+</table>
+<div class="foot" style="font-size:.76rem;margin-top:4px">가중 총합 = 1.000000 (검산 통과) · 원본 사슬: <code>daily_market_state.csv → adtv90_ledger.csv → constituents_*.csv → weights_*.csv</code> — 같은 입력이면 누구나 같은 표가 재현됩니다.</div>
+</div>
+</div>
+
 <div class="bridge">
 <b>발표 시 주의(전원 확인/이월):</b>
+<b>지수·BM 수치는 수정주가 미적용(폴백) 상태</b> — 010120 기업행사 미조정 가능성으로 확인 중이며, 한국 수정주가 확보 후 재산출·갱신됩니다.
 이 수치는 <b>파이프라인 검증·비교시험 입력 확보용 잠정치</b>이며 성과판정이 아닙니다(간이투자설명서 [백테스트 후 채움] 칸에 넣지 않음).
 <b>A-2 "종일 거래정지일 0 반영"</b>은 전원 확인 대기 안건이고, <b>US 우주방산 셀 16.67% 1종목 집중</b>은 상한(NO_CAP) 미적용 파일럿 한계입니다.
 P10 하한은 9종목 소규모 유니버스의 기계적 절단으로, 절대금액 승인은 정식 이월(#16)입니다.

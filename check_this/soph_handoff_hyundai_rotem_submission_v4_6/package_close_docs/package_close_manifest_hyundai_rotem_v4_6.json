@@ -1,0 +1,222 @@
+{
+  "created_at": "2026-07-23 23:38:32",
+  "rule_version": "DART_FINAL_HANDOFF_V4_6_v0.1",
+  "representative_workbook": "SOPH_DART_064350_현대로템_공시자료_정제본_v4_6.xlsx",
+  "required_core_files": 25,
+  "missing_core_files": [
+    "package_close_manifest_hyundai_rotem_v4_6.csv",
+    "package_close_manifest_hyundai_rotem_v4_6.json"
+  ],
+  "summaries": {
+    "reverse_reproducibility_percent": 99.6235,
+    "reverse_review_need_percent": 0.3765,
+    "context_acceptance_percent": 99.6235,
+    "integrity_pass_percent": 100.0,
+    "quality_integrity_pass_percent": 100.0,
+    "visual_integrity_pass_percent": 100.0,
+    "raw_files": 56,
+    "qa_files": 4
+  },
+  "files": [
+    {
+      "name": "SOPH_DART_064350_현대로템_공시자료_정제본_v4_6.xlsx",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\SOPH_DART_064350_현대로템_공시자료_정제본_v4_6.xlsx",
+      "size_bytes": 3081347,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "SOPH_HANDOFF_README_064350_현대로템_v4_6.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\SOPH_HANDOFF_README_064350_현대로템_v4_6.md",
+      "size_bytes": 1445,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_감사추적형_최종인계보고서_v4_6.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_감사추적형_최종인계보고서_v4_6.md",
+      "size_bytes": 7446,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_시각자료및품질지표설명서_v4_6.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_시각자료및품질지표설명서_v4_6.md",
+      "size_bytes": 1401,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_팀공유문안_v4_6.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_팀공유문안_v4_6.md",
+      "size_bytes": 1294,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "package_close_manifest_hyundai_rotem_v4_6.csv",
+      "status": "MISSING",
+      "path": "",
+      "size_bytes": "",
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "package_close_manifest_hyundai_rotem_v4_6.json",
+      "status": "MISSING",
+      "path": "",
+      "size_bytes": "",
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_최종마감로그_v4_6.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_최종마감로그_v4_6.csv",
+      "size_bytes": 643,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_6_visual_quality_integrity_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_6_visual_quality_integrity_check_hyundai_rotem.csv",
+      "size_bytes": 7000,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_5_quality_transparency_integrity_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_5_quality_transparency_integrity_check_hyundai_rotem.csv",
+      "size_bytes": 9636,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_4_memo_thread_integrity_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_4_memo_thread_integrity_check_hyundai_rotem.csv",
+      "size_bytes": 8727,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_3_manual_review_integrity_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_3_manual_review_integrity_check_hyundai_rotem.csv",
+      "size_bytes": 10731,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_2_context_integrity_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_2_context_integrity_check_hyundai_rotem.csv",
+      "size_bytes": 4401,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_1_mapping_integrity_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_1_mapping_integrity_check_hyundai_rotem.csv",
+      "size_bytes": 16207,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_1_reverse_trace_qa_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\v4_1_reverse_trace_qa_hyundai_rotem.csv",
+      "size_bytes": 1303018,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_5_final_package_self_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\v4_5_final_package_self_check_hyundai_rotem.csv",
+      "size_bytes": 5794,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_5_final_package_self_check_hyundai_rotem.json",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\v4_5_final_package_self_check_hyundai_rotem.json",
+      "size_bytes": 706,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_v4_5_최종자기검사보고서.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_v4_5_최종자기검사보고서.md",
+      "size_bytes": 1161,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_진단종합서.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_진단종합서.md",
+      "size_bytes": 3386,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_분류및검증상세서.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_분류및검증상세서.md",
+      "size_bytes": 4508,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_사용로직설명서.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_사용로직설명서.md",
+      "size_bytes": 2641,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_패키지지도및인계서.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_패키지지도및인계서.md",
+      "size_bytes": 2939,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_6_final_package_self_check_hyundai_rotem.csv",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\v4_6_final_package_self_check_hyundai_rotem.csv",
+      "size_bytes": 56,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "v4_6_final_package_self_check_hyundai_rotem.json",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\v4_6_final_package_self_check_hyundai_rotem.json",
+      "size_bytes": 27,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    },
+    {
+      "name": "DART_064350_현대로템_v4_6_최종자기검사보고서.md",
+      "status": "PASS",
+      "path": "C:\\Soph\\projects\\custom_index\\index_lab\\report_disclosure_materials\\outputs\\soph_handoff_hyundai_rotem_v1\\package_close_docs\\DART_064350_현대로템_v4_6_최종자기검사보고서.md",
+      "size_bytes": 69,
+      "role": "v4_6 final handoff core file",
+      "created_at": "2026-07-23 23:38:32"
+    }
+  ]
+}

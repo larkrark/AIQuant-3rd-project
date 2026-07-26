@@ -1,5 +1,6 @@
 # 임시 Office 파일
 ~$*.docx
+~$*.pptx
 
 # 파이썬 가상환경
 .venv/
@@ -23,6 +24,10 @@ secrets.*
 Thumbs.db
 .vscode/
 .idea/
+
+# 작업용 임시 폴더 (main 규칙)
+_to_delete/
+check_this/
 
 # 데이터 산출물 (검증 전용 · 인용 금지 · 재생성 가능)
 06_코드/engine/sample_data/

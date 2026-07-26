@@ -1,0 +1,14 @@
+# 06_코드 의존성. 재현성을 위해 각자 "작동 확인된" 환경에서
+#   pip freeze > requirements.lock.txt
+# 로 정확 버전을 고정해 함께 커밋하세요(아래는 하한만).
+#
+# 파이썬: 3.10~3.12 중 하나로 통일 권장 (__pycache__에 310·312 혼재 이력 있음 → 환경 불일치 주의)
+
+# --- engine 실행 (필수) ---
+pandas>=2.0
+numpy>=1.24
+
+# --- ingest 로컬 수집 전용 (engine 실행에는 불필요) ---
+yfinance>=0.2.40
+pykrx>=1.0.45
+python-dotenv>=1.0     # 선택: .env 자동 로드. 없으면 collect_pilot_inputs가 수동 파싱
