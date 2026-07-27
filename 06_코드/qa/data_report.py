@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-"""데이터 수집 개요 시각화 — 수집한 원본 입력을 엔진 투입 전 눈으로 검수.
+"""데이터 수집 개요 시각화 — 엔진 입력을 투입 전 눈으로 검수.
 
-목적: data_loader 가 만든 입력 폴더(prices·fx·bm·sources)를 읽어
-     '무엇을·얼마나·어떤 출처로' 수집했는지 한 장으로 확인 (수집 단계 자체의 피겨).
+목적: 엔진 입력 폴더(prices·fx·bm·seed_basket)를 읽어 '무엇을·얼마나·어떤 출처로'
+     수집했는지 한 장으로 확인 (수집 단계 자체의 피겨).
+대상: 기본은 git 등록 실입력 data/pilot_run/input_krxbm (KR9+US9 파일럿 본실행 입력).
+     data_loader 가 만든 내 독립 수집본(sources.json 포함)도 그대로 받는다.
 설계: report.py 팔레트·스타일 재사용, 테마색 막대·단일축·억제된 격자.
 """
 import os
@@ -16,7 +18,10 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import paths as P
 import report as R
+
+P.force_utf8_stdout()
 
 C = R.C
 THEME_C = R.THEME_C
@@ -44,9 +49,11 @@ def make_data_overview(input_dir: str, fig_path: str) -> dict:
                           left=0.10, right=0.95, top=0.85, bottom=0.08)
     fig.suptitle("데이터 수집 개요 — 엔진 투입 전 원본 검수", x=0.10, y=0.955,
                  ha="left", fontsize=15, color=C["ink"], fontweight="bold")
-    win = src.get("window", ["", ""])
-    fig.text(0.10, 0.905, f"{win[0]}~{win[1]} · 종목 {len(cov)}개 · fx: {src.get('fx','-')} · "
-             f"bm_kr: {src.get('bm_kr','-')} · 인용금지",
+    # sources.json 은 내 독립 수집본에만 있다. 없으면(팀 인계 입력) 관측 구간에서 직접 읽는다.
+    win = src.get("window") or [prices["market_date"].min(), prices["market_date"].max()]
+    origin = (f"fx: {src.get('fx')} · bm_kr: {src.get('bm_kr')}" if src
+              else f"출처: {os.path.relpath(os.path.abspath(input_dir), P.ROOT)} (팀 인계 입력 · INPUT_MANIFEST.md 참조)")
+    fig.text(0.10, 0.905, f"{win[0]}~{win[1]} · 종목 {len(cov)}개 · {origin} · 인용 시 rule_version 병기",
              ha="left", fontsize=8.8, color=C["muted"])
 
     # (1) 종목별 관측일수 — 테마색 막대. 짧은 이력(시즈닝 미달 후보)을 한눈에.
@@ -92,9 +99,9 @@ def make_data_overview(input_dir: str, fig_path: str) -> dict:
 
 
 if __name__ == "__main__":
-    in_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "engine", "real_data")
-    fig_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+    in_dir = sys.argv[1] if len(sys.argv) > 1 else P.PILOT_INPUT
+    P.require(os.path.join(in_dir, "prices.csv"), "엔진 입력(prices.csv)")
+    fig_dir = P.FIGURES
     os.makedirs(fig_dir, exist_ok=True)
     out = os.path.join(fig_dir, "data_overview.png")
     print(make_data_overview(in_dir, out))

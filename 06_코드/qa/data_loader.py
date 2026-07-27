@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """데이터 로더 — 실데이터 수집·정제 → engine 입력 스키마 CSV 생성.
 
-★ 위치: 백테스팅(독립 재산출). 팀 collect_pilot_inputs.py 와 '의도적으로 중복'.
+★ 위치: qa 트랙(독립 재산출). 팀 ingest/collect_pilot_inputs.py 와 '의도적으로 중복'.
    목적: 팀과 독립적으로, 그러나 동일 룰북·동일 유니버스(seed_basket)로 수집하여
-        engine 산출이 팀 결과와 일치하는지 교차검증. 통합·폐기 금지.
+        지수 산출이 팀 결과와 일치하는지 교차검증. 통합·폐기 금지.
 
 기준 인용(임의값 사용 금지):
-  - 유니버스     : seed_basket.csv (유니버스 정본, 팀 확정분)
+  - 유니버스     : data/input_data/seed_basket.csv (유니버스 정본, 팀 확정분)
   - 종가         : raw_close = 비조정 종가 (데이터사전 4.1 · auto_adjust=False)
+  - 수정주가     : adj_close = 분할만 조정·배당 미조정 (데이터사전 4.1 갱신 · PR 정합)
   - 거래대금     : 공식값 우선, 미확보 시 재구성값 — 여기선 공식(KRX 로그인) 미보유이므로
                   exchange_trading_value 를 채우지 않음 → engine 이 RECONSTRUCTED 처리 (데이터사전 4.1)
   - 상장일       : 실제 listing_date 수집 → 시즈닝 판정 근거 (데이터사전 3 · D-06 유효관측일수)
@@ -24,19 +25,22 @@ import time
 import warnings
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import paths as P
+
 warnings.filterwarnings("ignore")
+P.force_utf8_stdout()
 
 START, END = "2025-10-01", "2026-07-20"
 ECOS_FX_SERIES = ("731Y001", "0000001")   # 원/달러 일별 — 계열코드 데이터사전 확정 대기(잠정)
-HERE = os.path.dirname(os.path.abspath(__file__))
-ENGINE = os.path.abspath(os.path.join(HERE, "..", "engine"))
-DEFAULT_BASKET = os.path.join(ENGINE, "seed_basket.csv")
+HERE = P.HERE
+DEFAULT_BASKET = P.SEED_BASKET            # data/input_data/seed_basket.csv (유니버스 정본)
 
 
 def _load_env() -> None:
-    """engine/.env 를 읽어 환경변수로 주입 (로컬 편의 · BOM 제거). dotenv 없어도 동작."""
-    p = os.path.join(ENGINE, ".env")
-    if not os.path.exists(p):
+    """.env(ingest/ 표준, 이전 engine/ 허용)를 읽어 환경변수로 주입 (BOM 제거). dotenv 없어도 동작."""
+    p = P.env_path()
+    if not p:
         return
     for line in open(p, encoding="utf-8-sig"):
         if "=" in line and not line.strip().startswith("#"):
@@ -72,6 +76,25 @@ def _epoch_to_date(ftd):
     return ""
 
 
+def _split_only_adj(close: pd.Series, dates: pd.Series, splits: pd.Series) -> pd.Series:
+    """분할 전용 수정주가 = 원종가 ÷ (해당일 '이후' 발생한 분할비율의 누적곱).
+
+    데이터사전 4.1(2026-07-24 갱신): adj_close 는 **분할 등 주식수 변동만 조정, 배당 미조정**
+    — PR 지수(D-08) 정합. 야후 `Adj Close`(분할+배당=TR 성향) 직접 사용은 금지되어,
+    분할계수만 뽑아 재구성한다. 분할 이력이 없으면 원종가와 동일(무해).
+    """
+    factor = pd.Series(1.0, index=close.index)
+    if splits is None or len(splits) == 0:
+        return close
+    d = pd.to_datetime(dates).dt.tz_localize(None)
+    for ts, ratio in splits.items():
+        if not ratio or ratio <= 0:
+            continue
+        eff = pd.Timestamp(ts).tz_localize(None) if pd.Timestamp(ts).tzinfo else pd.Timestamp(ts)
+        factor[d < eff] *= float(ratio)   # 분할일 이전 가격만 축소 → 분할 연속성 확보
+    return close / factor
+
+
 # --- 미국: raw_close·adj_close 동시 수집 + 실제 상장일 ---
 def _us_prices(sid, start, end):
     import yfinance as yf
@@ -80,13 +103,16 @@ def _us_prices(sid, start, end):
     if h is None or h.empty:
         return None, None
     h = h.reset_index()
-    # 용도 분리(팀 결정): raw_close=Close(거래대금 재구성용) · adj_close=Adj Close(지수·수익률용)
-    # 주의: 야후 Adj Close 는 배당까지 조정(TR 성향) — PR 지수 취지와 차이 가능, sources 에 캐비엇 기록.
+    # 용도 분리(D-07): raw_close=Close(거래대금 재구성용) · adj_close=분할전용 수정주가(지수·수익률용)
+    try:
+        splits = t.splits
+    except Exception:
+        splits = None
     px = pd.DataFrame({
         "security_id": sid, "market": "US",
         "market_date": pd.to_datetime(h["Date"]).dt.strftime("%Y-%m-%d"),
         "raw_close": h["Close"].round(4),
-        "adj_close": h["Adj Close"].round(4) if "Adj Close" in h.columns else h["Close"].round(4),
+        "adj_close": _split_only_adj(h["Close"], h["Date"], splits).round(4),
         "volume": h["Volume"].fillna(0).astype("int64"),
     })
     # 상장일: 야후 firstTradeDate(epoch) → 그럴듯한 연도로 변환. 관측창 이전이면 시즈닝 충분.
@@ -235,9 +261,10 @@ def build_inputs(out_dir: str, basket_path: str = DEFAULT_BASKET,
     # 출처메모: 독립 QA·재현성 검증 기준 (팀 INPUT_MANIFEST 와 대조용)
     sources = {
         "rule_version": "v0.9-pilot", "window": [start, end],
-        "price_columns": ("raw_close(비조정)·adj_close(수정주가) 모두 보존 [팀 결정]. "
+        "price_columns": ("raw_close(비조정)·adj_close(수정주가) 모두 보존 [D-07]. "
                           "지수·수익률·분할연속성=adj_close, 거래대금 재구성=raw_close×거래량. "
-                          "캐비엇: 미국 adj_close=야후 AdjClose(배당조정 포함=TR성향), PR 지수와 차이 가능 — 룰북 확인 필요"),
+                          "adj_close 정의(데이터사전 4.1, 2026-07-24): 분할 등 주식수 변동만 조정·배당 미조정 = PR 정합. "
+                          "미국=야후 splits 로 분할계수만 재구성(AdjClose 직접 사용 금지). 한국=pykrx adjusted=True(배당 제외)"),
         "trading_value": "RECONSTRUCTED (공식 KRX 로그인 미보유 — 재구성 위장 금지)",
         "fx": fx_src, "bm_kr": bmkr_src, "bm_us": bmus_src,
         "listings": "US=YAHOO_REFERENCE, KR=PYKRX_FIRST_OBS_PROXY (실상장일 근형 인계본 교체 예정)",
@@ -250,7 +277,7 @@ def build_inputs(out_dir: str, basket_path: str = DEFAULT_BASKET,
     # 수집 개요 피겨 — 엔진 투입 전 원본을 눈으로 검수 (수집 단계 자체의 시각화)
     try:
         import data_report
-        fig_dir = os.path.join(HERE, "figures")
+        fig_dir = P.FIGURES
         os.makedirs(fig_dir, exist_ok=True)
         fig = os.path.join(fig_dir, "data_overview.png")
         data_report.make_data_overview(out_dir, fig)
@@ -264,5 +291,5 @@ def build_inputs(out_dir: str, basket_path: str = DEFAULT_BASKET,
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ENGINE, "real_data")
+    out = sys.argv[1] if len(sys.argv) > 1 else P.COLLECTED
     build_inputs(out)

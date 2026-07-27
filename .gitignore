@@ -36,5 +36,8 @@ check_this/
 06_코드/engine/output_real/
 06_코드/engine/team_input/
 06_코드/engine/output_team/
-06_코드/backtest/figures/
-06_코드/backtest/real_data/
+06_코드/engine/output_realdata/
+06_코드/qa/figures/
+06_코드/qa/collected/
+# 폐지된 트랙 — qa/ 로 이동(2026-07-27). 로컬 잔여 산출물 무시
+06_코드/backtest/

@@ -12,3 +12,20 @@
 - 수기 검산(J-5): 소표본(예: 1종목×5일 + 리밸 1회)을 사람이 직접 계산해 대조.
 
 (비교시험·분포·재무 확인표 같은 "engine과 공유해도 되는" 산출 러너는 `analysis/`에 둔다.)
+
+## 구현 현황 (2026-07-27)
+
+기존 `06_코드/backtest/` 트랙을 이 폴더로 옮겼다. 실행법·파일별 역할은 **[RUNBOOK.md](RUNBOOK.md)**,
+원자료부터 지수까지 전체 흐름은 **[../DATAFLOW.md](../DATAFLOW.md)** 참조.
+
+| 단계 | 도구 | 상태 |
+|---|---|---|
+| 입력 검수 | `data_report.py` | 동작 — `data/pilot_run/input_krxbm` |
+| 독립 수집 | `data_loader.py` | 동작 — 팀 `ingest/`와 의도적 중복(교차검증용) |
+| 교차검증 | `compare_runs.py` | 동작 — 기준 `output_krxbm` vs 내 재산출 |
+| 성과 평가 | `run_backtest.py` | 동작 — `data/pilot_run/output_krxbm` |
+| 수기 검산(J-5) | — | 미착수 |
+
+독립성 관련 남은 항목: 현재 `compare_runs.py`가 대조하는 "내 재산출"은 `data_loader.py`로 독립
+수집한 입력을 **engine에 통과시킨** 결과다. 지수 계산부까지 규칙 문서만으로 별도 구현해야 완전한
+독립 재산출이 되며, 그 전까지는 **입력 수집 경로의 교차검증**으로만 읽어야 한다.

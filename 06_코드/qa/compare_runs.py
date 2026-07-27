@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
-"""독립 재산출 교차검증 — 팀 수집본 vs 내 수집본을 각각 engine 에 통과시켜 지수 시계열 대조.
+"""독립 재산출 교차검증 — 두 실산출 폴더의 지수 시계열을 대조한다.
 
-목적: 동일 룰북·동일 유니버스(seed_basket)로 '독립 수집한 두 입력'이 같은 지수를 내는지 확인.
+목적: 동일 룰북·동일 유니버스(seed_basket)에서 '독립 수집한 입력'이 같은 지수를 내는지 확인.
       일치 = 재현성 확보(양측 배관 신뢰), 불일치 = 원인(입력 출처·창·결측)을 룰북 대조로 규명.
-전제: 두 경로 모두 KR 인계 대기(US only)·KRX 로그인 미보유(^KS200 예비) 상태이므로 근접 예상.
 
-산출: 겹치는 거래일 구간의 (내 지수 vs 팀 지수) 오버레이·차이·요약표 대시보드 + 콘솔 리포트.
+기본 대조쌍 (둘 다 실데이터):
+  기준(팀) = data/pilot_run/output_krxbm  — git 등록된 파일럿 본실행 산출(KR9+US9, KRX 공식 BM)
+  내 재산출 = engine/output_real          — data_loader 독립 수집본을 통과시킨 산출(git 미추적)
+
+이 스크립트는 engine 을 실행하거나 import 하지 않는다 — qa 트랙 독립성 규칙.
+비교 대상은 '이미 산출된 결과'이며, 산출 자체는 각 트랙에서 별도로 수행한다.
+(2026-07-24 팀 리팩터 전에는 여기서 팀 input_data 를 조립해 engine 을 직접 돌렸다.
+ 그 경로는 engine/input_data 이동으로 깨졌고, 독립성 규칙과도 어긋나 제거했다.)
+
+산출: 겹치는 거래일 구간의 (내 지수 vs 기준 지수) 오버레이·차이·요약표 대시보드 + 콘솔 리포트.
 """
 import os
 import sys
-import shutil
-import subprocess
 import pandas as pd
 
 import matplotlib
@@ -19,36 +25,15 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ENGINE = os.path.abspath(os.path.join(HERE, "..", "engine"))
 sys.path.insert(0, HERE)
+import paths as P
 import metrics as M
 import report as R   # 팔레트·스타일 재사용 (동일 디자인 시스템)
 
+P.force_utf8_stdout()
+
 C = R.C
-TEAM_C = "#1baf7a"   # 팀 = 아쿠아(팔레트 슬롯3, 슬롯1 파랑과 CVD 안전)
-
-
-def assemble_team_input(input_data: str, out_dir: str) -> None:
-    """팀 input_data/* 를 run_pilot 입력계약으로 조립 (파일명·컬럼 정합).
-    분리 저장된 팀 산출(prices_us·listings_us_fixed 등)을 engine 이 기대하는 이름으로 매핑."""
-    os.makedirs(out_dir, exist_ok=True)
-    cp = lambda src, dst: shutil.copy(os.path.join(input_data, src), os.path.join(out_dir, dst))
-    # US 전용 현황: prices_us → prices (KR 인계 시 concat 확장 지점)
-    pd.read_csv(os.path.join(input_data, "prices_us.csv"), dtype={"security_id": str}) \
-        .to_csv(os.path.join(out_dir, "prices.csv"), index=False)
-    # 상장일: fixed 본에서 계약 컬럼만 추출
-    pd.read_csv(os.path.join(input_data, "listings_us_fixed.csv"), dtype={"security_id": str}) \
-        [["security_id", "listing_date"]].to_csv(os.path.join(out_dir, "listings.csv"), index=False)
-    for f in ("calendar.csv", "fx.csv", "bm_kr.csv", "bm_us.csv"):
-        cp(f, f)
-    shutil.copy(os.path.join(ENGINE, "seed_basket.csv"), os.path.join(out_dir, "seed_basket.csv"))
-    pd.DataFrame(columns=["security_id", "market_date", "full_day_halt"]) \
-        .to_csv(os.path.join(out_dir, "halts.csv"), index=False)   # KR 정지 인계 대기
-
-
-def _run_engine(in_dir: str, out_dir: str) -> None:
-    """engine(run_pilot) 실행 — 입력폴더 → 산출폴더."""
-    subprocess.run([sys.executable, "run_pilot.py", in_dir, out_dir], cwd=ENGINE, check=True)
+TEAM_C = "#1baf7a"   # 기준(팀) = 아쿠아(팔레트 슬롯3, 슬롯1 파랑과 CVD 안전)
 
 
 def _load(out_dir: str) -> pd.DataFrame:
@@ -93,7 +78,7 @@ def make_comparison(mine_dir: str, team_dir: str, fig_path: str, align: bool = T
                  x=0.08, y=0.965, ha="left", fontsize=15, color=C["ink"], fontweight="bold")
     align_note = "요약표=겹치는구간 정렬" if align else "요약표=각 전체구간"
     fig.text(0.08, 0.925, f"공통 거래일 {len(merged)}일 · 수익률 상관 {corr:.4f} · "
-             f"최대 상대괴리 {max_gap:.2f}% · {align_note}  ·  seed_basket(US, KR 인계대기)·인용금지",
+             f"최대 상대괴리 {max_gap:.2f}% · {align_note}  ·  실데이터 v0.9-pilot(파일럿 잠정치)",
              ha="left", fontsize=9.5, color=C["muted"])
 
     # (1) 지수 오버레이 — 팀은 점선으로 위에 겹쳐 '일치' 가독화 (완전 일치 시 실선끼리는 가려짐)
@@ -152,29 +137,32 @@ def make_comparison(mine_dir: str, team_dir: str, fig_path: str, align: bool = T
 def main():
     import argparse
     ap = argparse.ArgumentParser()
+    ap.add_argument("--mine", default=P.MINE_OUTPUT,
+                    help="내 재산출 폴더 (기본: engine/output_real)")
+    ap.add_argument("--team", default=P.PILOT_OUTPUT,
+                    help="대조 기준 폴더 (기본: data/pilot_run/output_krxbm — git 등록 실산출)")
     ap.add_argument("--no-align", action="store_true",
                     help="요약표를 각 전체구간으로(창 차이 노출). 기본은 겹치는구간 정렬")
     args = ap.parse_args()
 
-    team_in = os.path.join(ENGINE, "team_input")
-    team_out = os.path.join(ENGINE, "output_team")
-    mine_out = os.path.join(ENGINE, "output_real")   # 내 data_loader→engine 산출(선행 필요)
-
-    print("[1/3] 팀 input_data 조립 → engine 실행 …")
-    assemble_team_input(os.path.join(ENGINE, "input_data"), team_in)
-    _run_engine("team_input", "output_team")
-
+    team_out, mine_out = args.team, args.mine
+    P.require(os.path.join(team_out, "index_vs_benchmark.csv"), "대조 기준 산출")
     if not os.path.exists(os.path.join(mine_out, "index_vs_benchmark.csv")):
-        print("[!] 내 산출(output_real) 없음 — 먼저 data_loader + run_pilot 실행 필요")
+        print(f"[!] 내 재산출 없음: {mine_out}")
+        print("    독립 수집(python data_loader.py) → 그 입력으로 지수 산출 후 --mine 으로 지정.")
         sys.exit(1)
 
-    print("[2/3] 두 산출 대조 + 비교 대시보드 생성 …")
-    fig_dir = os.path.join(HERE, "figures")
+    print(f"[1/2] 대조 대상 로드")
+    print(f"      기준(팀)   {os.path.relpath(team_out, P.ROOT)}")
+    print(f"      내 재산출  {os.path.relpath(mine_out, P.ROOT)}")
+
+    print("[2/2] 두 산출 대조 + 비교 대시보드 생성 …")
+    fig_dir = P.FIGURES
     os.makedirs(fig_dir, exist_ok=True)
     fig_path = os.path.join(fig_dir, "compare_dashboard.png")
     r = make_comparison(mine_out, team_out, fig_path, align=not args.no_align)
 
-    print("[3/3] 완료\n")
+    print("완료\n")
     print(f"  [{'겹치는구간 정렬' if r['aligned'] else '각 전체구간'}]")
     print(_cmp_row("내수집", r["summary_mine"]))
     print(_cmp_row("팀수집", r["summary_team"]))
