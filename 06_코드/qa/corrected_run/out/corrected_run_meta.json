@@ -1,0 +1,50 @@
+{
+  "status": "QA_REFERENCE_ONLY",
+  "gate": "D-7 산출물 게이트 미통과 — 단독 인용 금지",
+  "correction_reason": "INPUT_ERROR_FIX",
+  "rule_version_base": "v0.9-pilot",
+  "source_run": "output_f1",
+  "spec": {
+    "index_linking_method": "SEGMENT_RELINK",
+    "fx_application": "SAME_DAY_ECOS",
+    "calc_days": "COMMON_OPEN_ONLY"
+  },
+  "reproduction": {
+    "index_max_rel_error": 1.056082388086356e-15,
+    "benchmark_max_rel_error": 2.1841656916674926e-16,
+    "fx_missing_days": 0,
+    "common_open_days": 59,
+    "passed": true
+  },
+  "corporate_actions_applied": [
+    {
+      "security_id": "010120",
+      "market": "KR",
+      "action": "STOCK_SPLIT",
+      "ratio": 5.0,
+      "effective_date": "2026-04-13",
+      "halt_dates": [
+        "2026-04-08",
+        "2026-04-09",
+        "2026-04-10"
+      ]
+    }
+  ],
+  "result": {
+    "asrun": {
+      "level": 1271.1384357033883,
+      "return": 0.27113843570338836,
+      "vs_bm": -0.14664659108293843
+    },
+    "corrected": {
+      "level": 1337.749126999218,
+      "return": 0.3377491269992181,
+      "vs_bm": -0.08003589978710868
+    },
+    "benchmark": {
+      "level": 1417.7850267863269,
+      "return": 0.4177850267863268
+    },
+    "correction_effect_pp": 0.06661069129582975
+  }
+}
