@@ -43,3 +43,6 @@ check_this/
 06_코드/backtest/
 06_코드/qa/independent/out/
 06_코드/qa/independent/out_selend/
+
+# 수기 검산 작성본(사람이 채우는 중) — 완성 후 별도 커밋
+06_코드/qa/manual_check/J5_수기검산_워크시트_작성본*.xlsx
