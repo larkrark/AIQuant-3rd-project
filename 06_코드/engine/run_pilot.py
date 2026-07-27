@@ -42,7 +42,16 @@ def run(input_dir: str, output_dir: str):
     common_open = sorted(kr_open & us_open)
 
     for sel_date in C.SELECTION_DATES:
-        led = indicators.compute_indicators(states, observation_end_date=sel_date)
+        # F-1 (D-13 ⑧·R4 PIT): 관측 종료일 = 자료마감일(선정일 이전 제5 공통 개장일 역산)
+        common_before = [d for d in common_open if d < sel_date]
+        if len(common_before) >= C.CUTOFF_LAG_TRADING_DAYS:
+            cutoff = common_before[-C.CUTOFF_LAG_TRADING_DAYS]
+        else:
+            cutoff = sel_date
+            print(f"[WARN] {sel_date}: 공통 개장일 부족으로 자료마감 역산 불가 — 선정일로 폴백(기록 필요)")
+        led = indicators.compute_indicators(states, observation_end_date=cutoff)
+        led["data_cutoff_date"] = cutoff
+        led["selection_date"] = sel_date
         led["review_cycle_id"] = f"RC-{sel_date}"
         ledgers.append(led)
         th = indicators.provisional_thresholds(led)
@@ -56,11 +65,25 @@ def run(input_dir: str, output_dir: str):
         selected.to_csv(os.path.join(output_dir, f"constituents_{sel_date}.csv"), index=False)
         weights.to_csv(os.path.join(output_dir, f"weights_{sel_date}.csv"), index=False)
         with open(os.path.join(output_dir, f"thresholds_{sel_date}.json"), "w") as f:
-            json.dump({"provisional_P10": th, "rule_version": C.RULE_VERSION}, f, ensure_ascii=False, indent=2)
+            json.dump({"provisional_P10": th, "data_cutoff_date": cutoff,
+                       "selection_date": sel_date, "rule_version": C.RULE_VERSION}, f, ensure_ascii=False, indent=2)
 
     pd.concat(ledgers).to_csv(os.path.join(output_dir, "adtv90_ledger.csv"), index=False)
     pd.concat(cell_notes).to_csv(os.path.join(output_dir, "cell_shortage.csv"), index=False)
 
+    # F-2: 평가가격 원천을 산출 메타로 기록 — 콘솔 경고만으로는 산출물 수신자가 폴백 사실을 알 수 없음
+    has_adj = "adj_close" in prices.columns and prices["adj_close"].notna().any()
+    run_meta = {
+        "rule_version": C.RULE_VERSION,
+        "valuation_price_source": "ADJ_CLOSE" if has_adj else "RAW_CLOSE_FALLBACK",
+        "valuation_note": "" if has_adj else "adj_close 미확보 — raw_close 평가(D-07 위반 상태), 수정주가 확보 후 재산출 필요",
+        "adtv90_observation_end": "data_cutoff_date",  # F-1 반영: D-13 ⑧ 자료마감일(선정일 이전 제5 공통거래일)
+        "index_linking_method": "SEGMENT_RELINK",      # B-1 현행: 연결계수(구간 리베이스 체인). 안건 J 확정 전 잠정
+        "fx_application": "SAME_DAY_ECOS",             # B-2 현행: 평가일 당일 환율. 안건 J 확정 전 잠정
+        "calc_days": "COMMON_OPEN_ONLY",               # B-3 현행: 한·미 공통 개장일만 산출. 안건 J 확정 전 잠정
+    }
+    with open(os.path.join(output_dir, "run_meta.json"), "w", encoding="utf-8") as f:
+        json.dump(run_meta, f, ensure_ascii=False, indent=2)
     idx = index_calc.compute_portfolio_index(weight_sets, prices, fx, common_open)
     bm = index_calc.compute_benchmark(bm_kr, bm_us, fx, sorted(weight_sets.keys()), common_open)
     out = idx.merge(bm, on="market_date", how="inner")
