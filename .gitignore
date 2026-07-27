@@ -41,3 +41,5 @@ check_this/
 06_코드/qa/collected/
 # 폐지된 트랙 — qa/ 로 이동(2026-07-27). 로컬 잔여 산출물 무시
 06_코드/backtest/
+06_코드/qa/independent/out/
+06_코드/qa/independent/out_selend/
