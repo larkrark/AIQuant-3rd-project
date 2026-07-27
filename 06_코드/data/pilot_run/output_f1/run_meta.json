@@ -1,0 +1,9 @@
+{
+  "rule_version": "v0.9-pilot",
+  "valuation_price_source": "RAW_CLOSE_FALLBACK",
+  "valuation_note": "adj_close 미확보 — raw_close 평가(D-07 위반 상태), 수정주가 확보 후 재산출 필요",
+  "adtv90_observation_end": "data_cutoff_date",
+  "index_linking_method": "SEGMENT_RELINK",
+  "fx_application": "SAME_DAY_ECOS",
+  "calc_days": "COMMON_OPEN_ONLY"
+}
