@@ -197,6 +197,31 @@ def main():
     print("-" * 58)
     print(f"{'보정 효과':<22}{l_c - l_a:>12.4f}{r_c - r_a:>11.2%}{g_c - g_a:>12.2%}")
 
+    # --- 3. 불변식 체크포인트 ---
+    # 과보정 탐지: 보정 후 분할일 종목수익률은 0이 아니라 실제 시장반응이어야 한다.
+    # 0이 나오면 분할비율을 이중 적용한 것이므로 즉시 실패시킨다.
+    sid = CORPORATE_ACTIONS[0]["security_id"]
+    eff = pd.Timestamp(CORPORATE_ACTIONS[0]["effective_date"])
+    col = px_corr[sid]
+    prev = col[col.index < eff].iloc[-1]
+    split_day_ret = col.loc[eff] / prev - 1.0
+    print(f"\n[체크] 보정 후 {sid} 분할일 수익률 {split_day_ret:+.4%} "
+          f"(0%면 과보정)")
+    assert abs(split_day_ret) > 1e-6, "과보정 — 분할일 수익률이 0이다"
+
+    # 축 분리: 누적 %p 차와 상대 수익률 차는 다른 축이다. 발표자료에서 섞으면 안 된다.
+    w_sid = weights.set_index("security_id")["final_target_weight"].get(sid)
+    sec_ret_a = px_asrun[sid].iloc[-1] / px_asrun[sid].iloc[0] - 1.0
+    sec_ret_c = px_corr[sid].iloc[-1] / px_corr[sid].iloc[0] - 1.0
+    implied_pp = (sec_ret_c - sec_ret_a) * w_sid
+    print(f"[체크] 종목 전구간 수익률 차 {(sec_ret_c - sec_ret_a):+.4%} "
+          f"x 비중 {w_sid:.6f} = {implied_pp:+.4%}p")
+    print(f"       지수 누적 수익률 차 {(r_c - r_a):+.4%}p  "
+          f"잔차 {abs(implied_pp - (r_c - r_a)):.2e}")
+    assert abs(implied_pp - (r_c - r_a)) < 1e-12, "누적 %p 축 분해 불일치"
+    print(f"[체크] 상대 수익률 차 {(l_c / l_a - 1):+.4%} "
+          f"— 누적 %p({r_c - r_a:+.4%}p)와 다른 축. 혼용 금지")
+
     os.makedirs(OUT, exist_ok=True)
     out = pd.DataFrame({
         "market_date": [d.date() for d in days],
