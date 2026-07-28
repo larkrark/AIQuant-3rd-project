@@ -73,7 +73,7 @@ def resolve_corp_code(key: str, stock_code: str, corp_name: str) -> tuple:
     """
     r = requests.get(f"{API}/corpCode.xml", params={"crtfc_key": key}, timeout=60)
     r.raise_for_status()
-    if r.content[:1] != b"PK":  # zip이 아니면 에러 JSON
+    if r.content[:2] != b"PK":  # zip이 아니면 에러 JSON
         raise SystemExit(f"[중단] corpCode 응답이 zip이 아니다: {r.text[:200]}")
     with zipfile.ZipFile(io.BytesIO(r.content)) as z:
         xml = z.read(z.namelist()[0])
