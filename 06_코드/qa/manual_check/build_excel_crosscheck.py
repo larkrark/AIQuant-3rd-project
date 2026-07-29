@@ -326,7 +326,8 @@ def sh_raw_us(wb, d):
 def sh_calc_adtv(wb, rng):
     a, b = rng
     ws = wb.create_sheet("11 계산 ADTV90")
-    widths(ws, {"A": 6, "B": 10, "C": 16, "D": 20, "E": 20, "F": 16, "G": 22, "H": 30})
+    widths(ws, {"A": 5, "B": 9, "C": 13, "D": 10, "E": 8, "F": 19, "G": 19,
+                "H": 14, "I": 19, "J": 26})
     r = title(ws, 1, "ADTV90 — 엑셀 수식으로 산출",
               "룰북 §8.1 · 제59조(미국은 원종가×원거래량 재구성) · 정지·무거래는 0 반영, 분모 90")
 
@@ -334,11 +335,13 @@ def sh_calc_adtv(wb, rng):
         "■ 수식",
         "  유효관측일수  = COUNTIF(상태열, \"TRADED\")",
         "  거래대금 합계 = SUMPRODUCT(종가열, 거래량열)     ← 제59조 재구성. 빈 칸은 0으로 처리됨",
-        "  ADTV90        = 합계 ÷ 90                        ← 분모는 관측창 길이 90 (결측 없음)",
+        "  분모          = 90 − 결측일수                     ← 룰북 §8.1 R6. 정지·무거래는 분모에 남는다",
+        "  ADTV90        = 합계 ÷ 분모",
         "  시즈닝        = IF(유효관측일수 >= 90, \"SEASONED\", \"INCOMPLETE\")",
     ], ncol=8)
 
-    r = head(ws, r, ["", "종목", "유효관측일수", "거래대금 합계", "ADTV90", "시즈닝", "분포 포함값", "메모"])
+    r = head(ws, r, ["", "종목", "유효관측일수", "결측일수", "분모", "거래대금 합계",
+                     "ADTV90", "시즈닝", "분포 포함값", "메모"])
     first = r
     for i, sid in enumerate(US_ORDER):
         cc, vc, sc = (get_column_letter(2 + 3 * i), get_column_letter(3 + 3 * i),
@@ -347,11 +350,15 @@ def sh_calc_adtv(wb, rng):
         put(ws, r, 1, i + 1, C_RAW, align=CTR)
         put(ws, r, 2, sid, C_RAW, align=CTR)
         put(ws, r, 3, f'=COUNTIF({S}{sc}{a}:{sc}{b},"TRADED")', C_CALC, "#,##0")
-        put(ws, r, 4, f'=SUMPRODUCT({S}{cc}{a}:{cc}{b},{S}{vc}{a}:{vc}{b})', C_CALC, "#,##0.00")
-        put(ws, r, 5, f"=D{r}/90", C_CALC, "#,##0.00")
-        put(ws, r, 6, f'=IF(C{r}>=90,"SEASONED","INCOMPLETE")', C_CALC, align=CTR)
-        put(ws, r, 7, f'=IF(F{r}="SEASONED",E{r},"")', C_CALC, "#,##0.00")
-        put(ws, r, 8, "시즈닝 미달 — 분포 제외 대상" if sid == "SPCX" else None, C_RAW)
+        put(ws, r, 4, f'=COUNTIF({S}{sc}{a}:{sc}{b},"DATA_MISSING")', C_CALC, "#,##0")
+        # 분모 = 90 − NA일수 (룰북 §8.1 R6). 정지·무거래는 0으로 반영하되 분모에 남는다.
+        # 90 을 그대로 쓰면 결측이 있는 종목에서 틀린다.
+        put(ws, r, 5, f"=90-D{r}", C_CALC, "#,##0")
+        put(ws, r, 6, f'=SUMPRODUCT({S}{cc}{a}:{cc}{b},{S}{vc}{a}:{vc}{b})', C_CALC, "#,##0.00")
+        put(ws, r, 7, f"=F{r}/E{r}", C_CALC, "#,##0.00")
+        put(ws, r, 8, f'=IF(C{r}>=90,"SEASONED","INCOMPLETE")', C_CALC, align=CTR)
+        put(ws, r, 9, f'=IF(H{r}="SEASONED",G{r},"")', C_CALC, "#,##0.00")
+        put(ws, r, 10, "시즈닝 미달 — 분포 제외 대상" if sid == "SPCX" else None, C_RAW)
         r += 1
     last = r - 1
 
@@ -387,17 +394,17 @@ def sh_calc_p10(wb, rng, d):
     ], ncol=4)
 
     rows = [
-        ("분포 모집단 n — 시즈닝 통과만", f"=COUNT({S}G{f}:G{l})", "#,##0", "룰북 §8.1 '보통주·시즈닝 통과'"),
+        ("분포 모집단 n — 시즈닝 통과만", f"=COUNT({S}I{f}:I{l})", "#,##0", "룰북 §8.1 '보통주·시즈닝 통과'"),
         ("보간 위치 h = (n−1) × 0.10", "=(B{0}-1)*0.1", "0.00", "h < 1 이면 P10은 최솟값과 2번째 사이"),
-        ("P10 하한 (시즈닝 통과 8종목)", f"=PERCENTILE({S}G{f}:G{seasoned_last},0.1)", "#,##0.00", "★ 공식 산출값"),
-        ("최솟값 x1", f"=SMALL({S}G{f}:G{seasoned_last},1)", "#,##0.00", ""),
-        ("두 번째 값 x2", f"=SMALL({S}G{f}:G{seasoned_last},2)", "#,##0.00", ""),
+        ("P10 하한 (시즈닝 통과 8종목)", f"=PERCENTILE({S}I{f}:I{seasoned_last},0.1)", "#,##0.00", "★ 공식 산출값"),
+        ("최솟값 x1", f"=SMALL({S}I{f}:I{seasoned_last},1)", "#,##0.00", ""),
+        ("두 번째 값 x2", f"=SMALL({S}I{f}:I{seasoned_last},2)", "#,##0.00", ""),
         ("보간 검산 = x1 + (h−1의내림)×(x2−x1)", "=B{3}+(B{1}-INT(B{1}))*(B{4}-B{3})", "#,##0.00",
          "PERCENTILE 과 같아야 함"),
-        ("KTOS ADTV90", f"=INDEX({S}E{f}:E{l},MATCH(\"KTOS\",{S}B{f}:B{l},0))", "#,##0.00", ""),
+        ("KTOS ADTV90", f"=INDEX({S}G{f}:G{l},MATCH(\"KTOS\",{S}B{f}:B{l},0))", "#,##0.00", ""),
         ("KTOS 편입 여부", "=IF(B{6}>=B{2},\"편입\",\"제외\")", "@", "P10 이상이면 편입"),
         ("KTOS의 P10 대비 차이 (%)", "=(B{6}/B{2}-1)*100", "0.00", ""),
-        ("P10 미만 종목 수", f"=COUNTIF({S}G{f}:G{seasoned_last},\"<\"&B{{2}})", "#,##0", "몇 종목이 떨어지는가"),
+        ("P10 미만 종목 수", f"=COUNTIF({S}I{f}:I{seasoned_last},\"<\"&B{{2}})", "#,##0", "몇 종목이 떨어지는가"),
         ("2종목 이상 탈락에 필요한 최소 n", "=CEILING(1/0.1,1)+1", "#,##0", "h=(n−1)×0.1 ≥ 1"),
     ]
     start = r
@@ -415,7 +422,7 @@ def sh_calc_p10(wb, rng, d):
         "■ 참고 — SPCX를 모집단에 넣으면 어떻게 되는가 (규칙상 넣지 않음)",
     ], ncol=4)
     put(ws, r, 1, "P10 (SPCX 포함 9종목)", C_RAW)
-    put(ws, r, 2, f"=PERCENTILE({S}E{f}:E{l},0.1)", C_CALC, "#,##0.00")
+    put(ws, r, 2, f"=PERCENTILE({S}G{f}:G{l},0.1)", C_CALC, "#,##0.00")
     put(ws, r, 4, "n이 9가 되어 h가 0.8로 커진다. 하위 두 값은 그대로라 P10만 올라간다.", C_RAW)
     r += 2
 
