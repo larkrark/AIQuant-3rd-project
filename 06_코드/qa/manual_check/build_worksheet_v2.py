@@ -906,29 +906,34 @@ def build_sealed(d, path):
     r_raw = p_after / p_before - 1
     r_adj = p_after / (p_before / SPLIT_RATIO) - 1
 
+    # 값은 문자열이 아니라 숫자로 넣는다. 반올림해 두면 엑셀 교차검산본과 정밀 대조가 안 된다.
+    # 단위는 09 대조표가 선언한 단위와 일치시킨다 (I·K·L 은 %).
     vals = {
-        "A": (CUTOFF, "룰북 §5.2 · 공통 개장일 축 5거래일 역산"),
-        "B": (f"{ktos:,.2f}", f"official_adtv90 · 방법 {krow.official_adtv90_method}"),
-        "C": (f"{int(krow.observed_open_days)}", f"정지 {int(krow.halt_days_90)}일은 0으로 넣고 분모에 포함 · 결측 {int(krow.missing_days_90)}일"),
-        "D": (f"{p10:,.2f}", f"n={n} · h=(n−1)×0.10={round((n-1)*0.10,2)} · 선형보간"),
-        "E": ("제외", f"ADTV90 {ktos:,.2f} < P10 {p10:,.2f}"),
-        "F": (f"{int((v < p10).sum())}", "h<1 이므로 항상 최솟값 1개만 미달"),
-        "G": ("11", "h=(n−1)×0.10 ≥ 1 이 되는 최소 n"),
-        "H": ("1.000000", "6셀 × 1/6"),
-        "I": (f"{wmax*100:.4f}", f"{wtop} · 셀에 1종목뿐이라 1/6을 단독 보유"),
-        "J": (f"{lvl:,.4f}", f"기준일 {INDEX_BASE}=1,000 · SEGMENT_RELINK · SAME_DAY_ECOS"),
-        "K": (f"{r_raw*100:.2f}", f"{p_after:,.0f} ÷ {p_before:,.0f} − 1 · 실재하지 않는 하락"),
-        "L": (f"{r_adj*100:.2f}", f"{p_after:,.0f} ÷ {p_before/SPLIT_RATIO:,.0f} − 1 · 분할 기준가 대비 실제 시장 반응"),
+        "A": (CUTOFF, "@", "룰북 §5.2 · 공통 개장일 축 5거래일 역산"),
+        "B": (float(ktos), "#,##0.000000", f"official_adtv90 · 방법 {krow.official_adtv90_method}"),
+        "C": (int(krow.observed_open_days), "#,##0",
+              f"정지 {int(krow.halt_days_90)}일은 0으로 넣고 분모에 포함 · 결측 {int(krow.missing_days_90)}일"),
+        "D": (float(p10), "#,##0.000000", f"n={n} · h=(n−1)×0.10={round((n-1)*0.10,2)} · 선형보간"),
+        "E": ("제외", "@", f"ADTV90 {ktos:,.2f} < P10 {p10:,.2f}"),
+        "F": (int((v < p10).sum()), "#,##0", "h<1 이므로 항상 최솟값 1개만 미달"),
+        "G": (11, "#,##0", "h=(n−1)×0.10 ≥ 1 이 되는 최소 n"),
+        "H": (1.0, "0.000000", "6셀 × 1/6"),
+        "I": (float(wmax * 100), "0.000000", f"{wtop} · 셀에 1종목뿐이라 1/6을 단독 보유 · 단위 %"),
+        "J": (float(lvl), "#,##0.000000", f"기준일 {INDEX_BASE}=1,000 · SEGMENT_RELINK · SAME_DAY_ECOS"),
+        "K": (float(r_raw * 100), "0.000000",
+              f"{p_after:,.0f} ÷ {p_before:,.0f} − 1 · 실재하지 않는 하락 · 단위 %"),
+        "L": (float(r_adj * 100), "0.000000",
+              f"{p_after:,.0f} ÷ {p_before / SPLIT_RATIO:,.0f} − 1 · 분할 기준가 대비 실제 시장 반응 · 단위 %"),
     }
 
     r = table_head(ws, r, ["", "시트", "검산 항목", "단위", "코드값", "산출 근거"])
     for code, sh, name, unit in ITEMS:
-        val, why = vals[code]
+        val, fmt, why = vals[code]
         put(ws, r, 1, code, C_GIVEN, align=CTR)
         put(ws, r, 2, sh, C_GIVEN, align=CTR)
         put(ws, r, 3, name, C_GIVEN)
         put(ws, r, 4, unit, C_GIVEN, align=CTR)
-        put(ws, r, 5, val, C_OK, bold=True)
+        put(ws, r, 5, val, C_OK, fmt, bold=True)
         put(ws, r, 6, why, C_GIVEN).alignment = WRAP
         r += 1
     r += 1
