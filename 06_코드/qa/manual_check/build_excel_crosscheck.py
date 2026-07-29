@@ -178,7 +178,7 @@ def sh_guide(wb):
     for a, b, c in [
         ("10 원자료 US거래", "미국 9종목 × 90개장일 종가·거래량·상태", "원자료 (수식 없음)"),
         ("11 계산 ADTV90", "유효관측일수·거래대금합·ADTV90", "COUNTIF · SUMPRODUCT"),
-        ("12 계산 P10", "백분위 보간·편입판정", "PERCENTILE.INC"),
+        ("12 계산 P10", "백분위 보간·편입판정", "PERCENTILE"),
         ("20 원자료 가격", "15종목 2일치 종가 + 환율", "원자료 (수식 없음)"),
         ("21 계산 비중", "셀별 종목수 → 1/6 → 종목당", "COUNTIF"),
         ("22 계산 지수", "원화환산 → 가격비 → 가중합", "SUMPRODUCT"),
@@ -280,18 +280,18 @@ def sh_calc_adtv(wb, rng):
 def sh_calc_p10(wb, rng, d):
     f, l = rng            # 11 시트의 첫/끝 행
     # 시즈닝 판정은 11 시트 G열 수식 =IF(F="SEASONED",E,"") 한 곳에만 둔다.
-    # 아래 함수들은 전체 범위를 쓰되, PERCENTILE.INC·SMALL·COUNT·COUNTIF가
+    # 아래 함수들은 전체 범위를 쓰되, PERCENTILE·SMALL·COUNT·COUNTIF가
     # 텍스트("")를 자동으로 건너뛰므로 결과적으로 시즈닝 통과분만 계산된다.
     # 범위를 손으로 잘라 쓰면 규칙이 두 곳에 흩어져 감사 추적이 어려워진다.
     seasoned_last = l
     ws = wb.create_sheet("12 계산 P10")
     widths(ws, {"A": 34, "B": 22, "C": 18, "D": 40})
     r = title(ws, 1, "P10 하한과 편입 판정 — 엑셀 수식으로 산출",
-              "룰북 §8.1(분포·하한) · §9(편입) · PERCENTILE.INC = 선형보간")
+              "룰북 §8.1(분포·하한) · §9(편입) · PERCENTILE = 선형보간")
 
     S = "'11 계산 ADTV90'!"
     r = note(ws, r, [
-        "■ 엑셀의 PERCENTILE.INC 는 파이썬 numpy.percentile 기본값과 같은 선형보간을 씁니다.",
+        "■ 엑셀의 PERCENTILE 은 파이썬 numpy.percentile 기본값과 같은 선형보간을 씁니다.",
         "  위치 h = (n − 1) × p, 소수부는 아래위 두 값 사이를 비례 배분합니다.",
         "  두 환경이 같은 값을 내면 보간 구현이 환경에 의존하지 않는다는 뜻입니다.",
     ], ncol=4)
@@ -299,11 +299,11 @@ def sh_calc_p10(wb, rng, d):
     rows = [
         ("분포 모집단 n — 시즈닝 통과만", f"=COUNT({S}G{f}:G{l})", "#,##0", "룰북 §8.1 '보통주·시즈닝 통과'"),
         ("보간 위치 h = (n−1) × 0.10", "=(B{0}-1)*0.1", "0.00", "h < 1 이면 P10은 최솟값과 2번째 사이"),
-        ("P10 하한 (시즈닝 통과 8종목)", f"=PERCENTILE.INC({S}G{f}:G{seasoned_last},0.1)", "#,##0.00", "★ 공식 산출값"),
+        ("P10 하한 (시즈닝 통과 8종목)", f"=PERCENTILE({S}G{f}:G{seasoned_last},0.1)", "#,##0.00", "★ 공식 산출값"),
         ("최솟값 x1", f"=SMALL({S}G{f}:G{seasoned_last},1)", "#,##0.00", ""),
         ("두 번째 값 x2", f"=SMALL({S}G{f}:G{seasoned_last},2)", "#,##0.00", ""),
         ("보간 검산 = x1 + (h−1의내림)×(x2−x1)", "=B{3}+(B{1}-INT(B{1}))*(B{4}-B{3})", "#,##0.00",
-         "PERCENTILE.INC 와 같아야 함"),
+         "PERCENTILE 과 같아야 함"),
         ("KTOS ADTV90", f"=INDEX({S}E{f}:E{l},MATCH(\"KTOS\",{S}B{f}:B{l},0))", "#,##0.00", ""),
         ("KTOS 편입 여부", "=IF(B{6}>=B{2},\"편입\",\"제외\")", "@", "P10 이상이면 편입"),
         ("KTOS의 P10 대비 차이 (%)", "=(B{6}/B{2}-1)*100", "0.00", ""),
@@ -325,7 +325,7 @@ def sh_calc_p10(wb, rng, d):
         "■ 참고 — SPCX를 모집단에 넣으면 어떻게 되는가 (규칙상 넣지 않음)",
     ], ncol=4)
     put(ws, r, 1, "P10 (SPCX 포함 9종목)", C_RAW)
-    put(ws, r, 2, f"=PERCENTILE.INC({S}E{f}:E{l},0.1)", C_CALC, "#,##0.00")
+    put(ws, r, 2, f"=PERCENTILE({S}E{f}:E{l},0.1)", C_CALC, "#,##0.00")
     put(ws, r, 4, "n이 9가 되어 h가 0.8로 커진다. 하위 두 값은 그대로라 P10만 올라간다.", C_RAW)
     r += 2
 
