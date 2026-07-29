@@ -202,6 +202,24 @@ def sh_cutoff(wb, d):
               "룰북 §5.2 · D-13 ⑧ · 축은 한·미 공통 개장일")
 
     r = note(ws, r, [
+        "■ 헷갈리기 쉬운 두 날짜 — 아래 표에 둘 다 나옵니다",
+        "  선정일    구성종목을 고르는 날. 주어지는 값입니다. 표 맨 아래 행이고 '며칠 전'이 0입니다.",
+        "  자료마감일 그 시점에 이용 가능했던 자료의 마지막 날. 구해야 하는 값입니다.",
+        "  두 날짜는 다릅니다. 엔진 원장에도 selection_date · data_cutoff_date 로 따로 기록됩니다.",
+    ], ncol=7, fill=C_WARN)
+
+    # 두 날짜를 표 위에 나란히 놓아 혼동을 막는다
+    r = head(ws, r, ["구분", "날짜", "뜻"])
+    put(ws, r, 1, "선정일 (주어짐)", C_RAW)
+    put(ws, r, 2, CYCLE, C_RAW, "@", CTR)
+    put(ws, r, 3, "구성종목을 고르는 날 · 아래 표의 마지막 행", C_RAW)
+    r += 1
+    put(ws, r, 1, "자료마감일 (구할 값)", C_RAW, bold=True)
+    ans_top = r
+    put(ws, r, 3, "선정일 이전 제5거래일 · 아래 표에서 산출", C_RAW)
+    r += 2
+
+    r = note(ws, r, [
         "■ 규칙",
         "  선정일 당일은 세지 않습니다(0). 선정일 바로 앞 공통 개장일이 1거래일 전입니다.",
         "  한국과 미국이 모두 열린 날만 셉니다. 한쪽만 열린 날은 번호를 주지 않고 건너뜁니다.",
@@ -240,6 +258,8 @@ def sh_cutoff(wb, d):
     ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
     put(ws, r, 3, f'=INDEX($B${f}:$B${l},MATCH(5,$F${f}:$F${l},0))', C_ANS, "@", CTR)
     ans = r
+    # 상단 요약 블록에도 같은 값을 비춘다 (선정일과 나란히 보이게)
+    put(ws, ans_top, 2, f"=C{ans}", C_ANS, "@", CTR)
     r += 1
     put(ws, r, 1, "구간 내 공통 개장일 수", C_RAW)
     ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
