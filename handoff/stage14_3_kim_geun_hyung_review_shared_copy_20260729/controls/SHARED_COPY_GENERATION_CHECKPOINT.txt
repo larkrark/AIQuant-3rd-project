@@ -1,0 +1,14 @@
+﻿status=CREATED_PENDING_QA
+source_review_status=USER_REVIEW_COMPLETED_AND_FROZEN
+shared_copy_status=DERIVED_COPY_WITH_LOCAL_PATH_REDACTION
+source_file_count=11
+generated_file_count=12
+redacted_source_files=7
+redacted_path_cells=123
+source_modification_count=0
+approval_status=NOT_APPROVED
+application_status=NOT_APPLIED
+promotion_status=NOT_PROMOTED
+git_add_performed=NO
+commit_performed=NO
+push_performed=NO
