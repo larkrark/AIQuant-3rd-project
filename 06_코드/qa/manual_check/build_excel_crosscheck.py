@@ -47,6 +47,7 @@ PUB = os.path.join(PILOT, "output_f1")
 INP = os.path.join(PILOT, "input_krxbm")
 OUT = os.path.join(HERE, "J5_엑셀수식_교차검산.xlsx")
 
+CYCLE = "2026-06-30"
 CUTOFF = "2026-06-23"
 INDEX_BASE = "2026-04-01"
 INDEX_TEST = "2026-04-07"
@@ -176,6 +177,7 @@ def sh_guide(wb):
 
     r = head(ws, r, ["시트", "내용", "계산 방식"])
     for a, b, c in [
+        ("05 계산 자료마감일", "공통 개장일 축 5거래일 역산", "SUMPRODUCT · INDEX/MATCH"),
         ("10 원자료 US거래", "미국 9종목 × 90개장일 종가·거래량·상태", "원자료 (수식 없음)"),
         ("11 계산 ADTV90", "유효관측일수·거래대금합·ADTV90", "COUNTIF · SUMPRODUCT"),
         ("12 계산 P10", "백분위 보간·편입판정", "PERCENTILE"),
@@ -190,6 +192,74 @@ def sh_guide(wb):
 
     ws.sheet_view.showGridLines = False
     return ws
+
+
+def sh_cutoff(wb, d):
+    """자료마감일 — 공통 개장일 축으로 선정일에서 5거래일 역산 (엑셀 수식)."""
+    ws = wb.create_sheet("05 계산 자료마감일")
+    widths(ws, {"A": 6, "B": 14, "C": 12, "D": 12, "E": 14, "F": 14, "G": 34})
+    r = title(ws, 1, f"자료마감일 — 선정일 {CYCLE} 이전 제5거래일",
+              "룰북 §5.2 · D-13 ⑧ · 축은 한·미 공통 개장일")
+
+    r = note(ws, r, [
+        "■ 규칙",
+        "  선정일 당일은 세지 않습니다(0). 선정일 바로 앞 공통 개장일이 1거래일 전입니다.",
+        "  한국과 미국이 모두 열린 날만 셉니다. 한쪽만 열린 날은 번호를 주지 않고 건너뜁니다.",
+        "",
+        "■ 수식",
+        "  공통 개장일  = IF(AND(한국=\"O\", 미국=\"O\"), 1, 0)",
+        "  며칠 전      = SUMPRODUCT((날짜범위 > 이 날짜) × (날짜범위 <= 선정일) × 공통플래그범위)",
+        "  자료마감일   = INDEX(날짜범위, MATCH(5, 며칠전범위, 0))",
+    ], ncol=7)
+
+    cal = d["cal"]
+    kr = set(cal[(cal.market == "KR") & (cal.is_market_open == 1)].market_date)
+    us = set(cal[(cal.market == "US") & (cal.is_market_open == 1)].market_date)
+    days = sorted(x for x in (kr | us)
+                  if pd.Timestamp("2026-06-01") <= x <= pd.Timestamp(CYCLE))
+
+    r = head(ws, r, ["", "날짜", "한국 개장", "미국 개장", "공통 개장일", "며칠 전", "메모"])
+    f = r
+    for i, dt in enumerate(days):
+        put(ws, r, 1, i + 1, C_RAW, align=CTR)
+        put(ws, r, 2, dt.strftime("%Y-%m-%d"), C_RAW)
+        put(ws, r, 3, "O" if dt in kr else "-", C_RAW, align=CTR)
+        put(ws, r, 4, "O" if dt in us else "-", C_RAW, align=CTR)
+        put(ws, r, 5, f'=IF(AND(C{r}="O",D{r}="O"),1,0)', C_CALC, "#,##0", CTR)
+        r += 1
+    l = r - 1
+    for rr in range(f, l + 1):
+        # 자기 날짜보다 뒤이면서 선정일 이하인 공통 개장일 수 = '며칠 전'
+        put(ws, rr, 6,
+            f'=SUMPRODUCT(($B${f}:$B${l}>B{rr})*($B${f}:$B${l}<="{CYCLE}")*$E${f}:$E${l})',
+            C_CALC, "#,##0", CTR)
+        put(ws, rr, 7, None, C_RAW)
+    r += 1
+
+    put(ws, r, 1, "자료마감일 (며칠 전 = 5 인 날)", C_RAW)
+    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
+    put(ws, r, 3, f'=INDEX($B${f}:$B${l},MATCH(5,$F${f}:$F${l},0))', C_ANS, "@", CTR)
+    ans = r
+    r += 1
+    put(ws, r, 1, "구간 내 공통 개장일 수", C_RAW)
+    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
+    put(ws, r, 3, f"=SUM($E${f}:$E${l})", C_CALC, "#,##0", CTR)
+    r += 1
+    put(ws, r, 1, "한쪽 시장만 열린 날 수", C_RAW)
+    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=2)
+    put(ws, r, 3, f"=COUNTA($B${f}:$B${l})-SUM($E${f}:$E${l})", C_CALC, "#,##0", CTR)
+    put(ws, r, 5, "0이 아니면 축 선택이 결과를 바꾼다", C_RAW)
+    r += 2
+
+    r = note(ws, r, [
+        "■ 왜 이 시트가 필요한가",
+        "  자료마감일이 하루라도 밀리면 ADTV90 관측창이 통째로 이동해 편입 판정까지 달라집니다.",
+        "  미래 정보 차단(PIT)의 출발점이라 여기가 틀리면 뒤가 전부 틀립니다.",
+        "  실제로 엔진의 F-1 오류가 이 지점이었습니다 — 관측 종료일을 선정일로 잡아 미래 정보가 샜습니다.",
+    ], ncol=7)
+
+    ws.sheet_view.showGridLines = False
+    return ans
 
 
 def sh_raw_us(wb, d):
@@ -601,6 +671,7 @@ def sh_compare(wb, d, refs):
 
     P10R, IDXR, WR, SPR = refs["p10"], refs["idx"], refs["w"], refs["split"]
     items = [
+        ("A", "자료마감일", f"='05 계산 자료마감일'!C{refs['cut']}", CUTOFF, "@"),
         ("B", "KTOS ADTV90 (USD)", f"='12 계산 P10'!B{P10R+6}", ktos, "#,##0.00"),
         ("C", "ADTV90 분모 (개장일수)", "=90", 90, "#,##0"),
         ("D", "미국 P10 하한 (USD)", f"='12 계산 P10'!B{P10R+2}", p10, "#,##0.00"),
@@ -645,6 +716,7 @@ def main():
     wb.remove(wb.active)
 
     sh_guide(wb)
+    cut_row = sh_cutoff(wb, d)
     us_rng = sh_raw_us(wb, d)
     adtv_rng = sh_calc_adtv(wb, us_rng)
     p10_base = sh_calc_p10(wb, adtv_rng, d)
@@ -662,8 +734,8 @@ def main():
             split_first_ans = rr
             break
 
-    refs = {"p10": p10_base, "idx": idx_row, "w": wrng[2], "wmax": wrng[3],
-            "split": split_first_ans}
+    refs = {"cut": cut_row, "p10": p10_base, "idx": idx_row, "w": wrng[2],
+            "wmax": wrng[3], "split": split_first_ans}
     sh_compare(wb, d, refs)
 
     wb.save(OUT)
