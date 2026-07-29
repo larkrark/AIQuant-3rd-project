@@ -646,7 +646,8 @@ def sh_calc_split(wb, d, wrng):
 
 def sh_compare(wb, d, refs):
     ws = wb.create_sheet("99 대조표")
-    widths(ws, {"A": 6, "B": 34, "C": 22, "D": 22, "E": 22, "F": 16, "G": 16, "H": 34})
+    widths(ws, {"A": 5, "B": 30, "C": 20, "D": 20, "E": 20, "F": 13,
+                "G": 13, "H": 14, "I": 18, "J": 26})
     r = title(ws, 1, "세 경로 대조 — 엑셀 수식 · 수기 · 코드",
               "엑셀값은 이 파일의 수식이 계산한 값 · 수기값은 직접 옮겨 적으십시오")
 
@@ -687,27 +688,64 @@ def sh_compare(wb, d, refs):
         ("L", "04-13 조정 후 수익률 (%)", f"='30 계산 분할'!D{SPR+1}*100",
          (p1 / (p0 / SPLIT_RATIO) - 1) * 100, "0.000000"),
     ]
-    r = head(ws, r, ["", "검산 항목", "엑셀 수식값", "수기값 (직접 기입)", "코드값", "엑셀−코드", "판정", "메모"])
+    r = head(ws, r, ["", "검산 항목", "엑셀 수식값", "수기값 (직접 기입)", "코드값",
+                     "엑셀−코드", "수기−코드", "판정", "가져올 곳", "메모"])
     first = r
+    # 수기값을 어느 시트 어느 칸에서 옮겨 오는지 (J5_수기검산_워크시트.xlsx 기준)
+    SRC = {"A": "02 시트 B26", "B": "03-04 시트 B108", "C": "03-04 시트 B104",
+           "D": "05 시트 B32", "E": "05 시트 B33", "F": "05 시트 B35",
+           "G": "05 시트 B43", "H": "06 시트 E26", "I": "06 시트 B53",
+           "J": "07 시트 D36", "K": "08 시트 C27", "L": "08 시트 C28"}
     for code, name, formula, codeval, fmt in items:
         put(ws, r, 1, code, C_RAW, align=CTR)
         put(ws, r, 2, name, C_RAW)
         put(ws, r, 3, formula, C_CALC, fmt)
         put(ws, r, 4, None, PatternFill("solid", fgColor="FFF7D1"), fmt)
         put(ws, r, 5, codeval, C_CODE, fmt)
-        if isinstance(codeval, (int, float)):
+        num = isinstance(codeval, (int, float))
+        if num:
             put(ws, r, 6, f"=C{r}-E{r}", C_CALC, "0.00E+00")
-            put(ws, r, 7, f'=IF(ABS(C{r}-E{r})<0.000001,"일치","★차이★")', C_CALC, align=CTR)
+            put(ws, r, 7, f'=IF(D{r}="","",D{r}-E{r})', C_CALC, "0.00E+00")
+            # 세 값이 모두 있어야 '3자 일치'. 수기값이 비면 미기입으로 표시된다.
+            put(ws, r, 8,
+                f'=IF(D{r}="","수기 미기입",'
+                f'IF(AND(ABS(C{r}-E{r})<0.000001,ABS(D{r}-E{r})<0.000001),"3자 일치","★차이★"))',
+                C_CALC, align=CTR)
         else:
             put(ws, r, 6, "—", C_RAW, align=CTR)
-            put(ws, r, 7, f'=IF(C{r}=E{r},"일치","★차이★")', C_CALC, align=CTR)
-        put(ws, r, 8, None, C_RAW)
+            put(ws, r, 7, "—", C_RAW, align=CTR)
+            put(ws, r, 8,
+                f'=IF(D{r}="","수기 미기입",IF(AND(C{r}=E{r},D{r}=E{r}),"3자 일치","★차이★"))',
+                C_CALC, align=CTR)
+        put(ws, r, 9, SRC[code], C_RAW)
+        put(ws, r, 10, None, C_RAW)
         r += 1
     last = r - 1
     r += 1
-    put(ws, r, 2, "엑셀 = 코드 일치 항목 수", C_RAW, bold=True)
-    put(ws, r, 3, f'=COUNTIF(G{first}:G{last},"일치")', C_ANS, "#,##0")
-    put(ws, r, 5, f"/ {len(items)}", C_RAW)
+    for lab, f in [
+        # TEXT() 로 감싸면 날짜·"제외" 같은 텍스트 행에서도 오류가 나지 않는다.
+        # ABS() 를 직접 쓰면 텍스트 행에서 #VALUE! 가 발생한다.
+        ("엑셀 = 코드 (참고용 · 자동 계산)",
+         f'=SUMPRODUCT(--(TEXT(C{first}:C{last},"0.000000")=TEXT(E{first}:E{last},"0.000000")))'),
+        ("★ 3자 일치 — 수기 검산 결과", f'=COUNTIF(H{first}:H{last},"3자 일치")'),
+        ("수기 미기입", f'=COUNTIF(H{first}:H{last},"수기 미기입")'),
+        ("차이 발생", f'=COUNTIF(H{first}:H{last},"★차이★")'),
+    ]:
+        put(ws, r, 2, lab, C_RAW, bold=("★" in lab))
+        put(ws, r, 3, f, C_ANS if "★" in lab else C_CALC, "#,##0")
+        put(ws, r, 5, f"/ {len(items)}", C_RAW)
+        r += 1
+    r += 1
+
+    r = note(ws, r, [
+        "■ D열(수기값)이 비어 있으면 검산은 끝나지 않은 것입니다.",
+        "  엑셀과 코드가 일치하는 것은 '같은 규칙을 두 환경에서 돌려 같은 값이 나왔다'는 뜻일 뿐입니다.",
+        "  둘 다 제가 같은 룰북 해석으로 만든 것이라, 해석이 틀렸다면 사이좋게 같이 틀립니다.",
+        "  사람이 손으로 따라가 D열을 채워야 그 가능성이 걸러집니다. 그것이 J-5 수기 검산입니다.",
+        "",
+        "  순서: ① J5_수기검산_워크시트.xlsx 를 손으로 채운다  ② 저장한다",
+        "        ③ I열 '가져올 곳'을 보고 D열에 옮겨 적는다  ④ H열 판정을 확인한다",
+    ], ncol=10, fill=C_WARN)
 
     ws.freeze_panes = ws.cell(first, 1)
     ws.sheet_view.showGridLines = False
