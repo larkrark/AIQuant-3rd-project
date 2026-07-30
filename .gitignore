@@ -1,9 +1,48 @@
+# 임시 Office 파일
 ~$*.docx
 ~$*.pptx
+
+# 파이썬 가상환경
+.venv/
+venv/
+env/
+
+# 파이썬 캐시/컴파일
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# 환경변수/비밀키
 .env
 .env.*
+*.key
 secrets.*
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 작업용 임시 폴더 (main 규칙)
 _to_delete/
 check_this/
+
+# 데이터 산출물 (검증 전용 · 인용 금지 · 재생성 가능)
+06_코드/engine/sample_data/
+06_코드/engine/output/
+06_코드/engine/real_data/
+06_코드/engine/output_real/
+06_코드/engine/team_input/
+06_코드/engine/output_team/
+06_코드/engine/output_realdata/
+06_코드/qa/figures/
+06_코드/qa/collected/
+# 폐지된 트랙 — qa/ 로 이동(2026-07-27). 로컬 잔여 산출물 무시
+06_코드/backtest/
+06_코드/qa/independent/out/
+06_코드/qa/independent/out_selend/
+
+# 수기 검산 작성본(사람이 채우는 중) — 완성 후 별도 커밋
+06_코드/qa/manual_check/J5_수기검산_워크시트_작성본*.xlsx
