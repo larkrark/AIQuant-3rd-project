@@ -199,7 +199,7 @@ def sheet_start(wb, meta):
         "  이 파일에는 코드가 낸 값이 하나도 들어 있지 않습니다. 일부러 뺐습니다.",
         "  답을 옆에 두고 채우면 무의식적으로 맞춰 쓰게 되어(확증편향) 검산이 성립하지 않습니다.",
         "  코드값은 J5_코드값_봉인.xlsx 에 따로 있습니다. 노란 칸을 전부 채우고 저장한 다음에 여십시오.",
-        "  → 순서: ① 노란 칸 전부 채움  ② 파일 저장  ③ 봉인 파일 열기  ④ 08 대조표에 옮겨 적기",
+        "  → 순서: ① 노란 칸 전부 채움  ② 파일 저장  ③ 봉인 파일 열기  ④ 09 대조표에 옮겨 적기",
     ], fill=C_WARN)
 
     r = section(ws, r, "색 범례")
@@ -350,7 +350,7 @@ def sheet_cutoff(wb, d):
     put(ws, r, 1, "자료마감일", C_GIVEN)
     ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=3)
     input_cell(ws, r, 2, answer=True)
-    put(ws, r, 4, "← 이 값을 08 대조표로 옮깁니다", C_BAND)
+    put(ws, r, 4, "← 이 값을 09 대조표로 옮깁니다", C_BAND)
     r += 2
 
     r = note(ws, r, [
