@@ -1,0 +1,123 @@
+{
+  "artifact": "qa_stage7_independent_recompute",
+  "rule_decision_date": "2026-07-30",
+  "scope": "SEED18_LIMITED_PILOT",
+  "rules": {
+    "fx_application": {
+      "name": "FX_SAME_DAY_ECOS_PROVISIONAL",
+      "status": "APPROVED_PILOT",
+      "series_officiality": "PROVISIONAL",
+      "note": "ECOS 계열코드·공표 이용시각 별도 확인 전"
+    },
+    "calc_days": {
+      "name": "COMMON_OPEN_DAYS_PILOT",
+      "status": "APPROVED_PILOT",
+      "production": "DEFERRED_TRIAL",
+      "note": "합집합 달력·가격이월은 후속 적용시험으로 분리"
+    },
+    "index_linking": {
+      "name": "CHAIN_REBASE_PILOT",
+      "status": "APPROVED_PILOT",
+      "verification": "NOT_EXERCISED",
+      "note": "정기변경 적용일이 없어 차이가 발동되지 않았음. 정확성 실증 아님"
+    },
+    "corporate_action": {
+      "name": "PAR_VALUE_5TO1_LISTING_BOUNDARY_PILOT",
+      "status": "APPROVED_PILOT_EVENT",
+      "generalization": "PENDING_SAMPLES",
+      "note": "010120 개별 사건 판정. 일반 규칙 승격은 추가 표본 후"
+    },
+    "bm_fx_treatment": {
+      "name": "BM_US_SAME_DAY_KRW_CONVERT",
+      "status": "APPROVED_PILOT",
+      "note": "지수·BM 에 동일 평가일 환율 적용 (B-2 통합)"
+    }
+  },
+  "tolerance_rtol": 1e-12,
+  "implementation_check": {
+    "target": "output_f1/index_vs_benchmark.csv",
+    "corporate_action": "NONE",
+    "max_rel_err": 1.056082388086356e-15,
+    "verdict": "MATCH"
+  },
+  "result_asrun": {
+    "n_days": 59,
+    "index_last": 1271.1384357033883,
+    "index_ret_pct": 27.113843570338837,
+    "bm_last": 1417.7850267863269,
+    "bm_ret_pct": 41.77850267863268,
+    "excess_pp": -14.664659108293844,
+    "fx_missing": 0,
+    "ann_vol_pct": 42.365275971321815,
+    "tracking_err_pct": 33.246945777860695,
+    "max_drawdown_pct": -14.92552880909721,
+    "max_daily_ret_pct": 6.085275735267848,
+    "min_daily_ret_pct": -7.320044854554597,
+    "repro_max_rel_err": 1.056082388086356e-15,
+    "reproduces_published": true
+  },
+  "result_decided": {
+    "n_days": 59,
+    "index_last": 1337.749126999218,
+    "index_ret_pct": 33.77491269992181,
+    "bm_last": 1417.7850267863269,
+    "bm_ret_pct": 41.77850267863268,
+    "excess_pp": -8.003589978710867,
+    "fx_missing": 0,
+    "ann_vol_pct": 42.39653668754484,
+    "tracking_err_pct": 32.96022737002894,
+    "max_drawdown_pct": -15.394362530000016,
+    "max_daily_ret_pct": 6.283694730617073,
+    "min_daily_ret_pct": -7.209765610775043,
+    "repro_max_rel_err": 0.08033462268266822,
+    "reproduces_published": false
+  },
+  "split_effect_pp": 6.661069129582977,
+  "weights_source": "qa/independent/out (engine 산출물 아님)",
+  "engine_import": false,
+  "inputs_sha256_16": {
+    "fx.csv": "ef833251ecf38c06",
+    "calendar.csv": "3cbb2c8d960a3c7a",
+    "bm_kr.csv": "6b7b4201f2438864",
+    "bm_us.csv": "c72ee3da2cb5270e",
+    "daily_market_state.csv": "4bc15889822e5032",
+    "weights_2026-03-31.csv (독립)": "ea4879e315a57cd1"
+  },
+  "performance_status": "PERFORMANCE_NOT_FROZEN",
+  "not_frozen_reason": [
+    "엔진 정식 재산출 미완 — 본 산출은 QA 독립분이다",
+    "BM 원계열 확인 미완 (bm_kr.csv 가 야후 예비계열, 안건 13)",
+    "ECOS 계열코드 PROVISIONAL",
+    "기업행사 원장 미구축 — KR9 나머지 8종목 미확인",
+    "ADTV90 분모의 거래정지일 처리 미의결 — 아래 adtv90_denominator 참조"
+  ],
+  "adtv90_denominator": {
+    "window": "상장 중인 최근 90 개장일 (시장 휴장일은 창 구성에서 애초에 제외)",
+    "counted_in_denominator": [
+      "TRADED",
+      "ZERO_VOLUME",
+      "TRADING_HALT"
+    ],
+    "excluded_from_denominator": [
+      "DATA_MISSING"
+    ],
+    "excluded_from_window": [
+      "NOT_LISTED",
+      "MARKET_CLOSED"
+    ],
+    "halt_treatment_used": "ZERO — 정지일 거래대금 0 으로 반영하고 분모에 포함",
+    "halt_treatment_alternative": "분모에서도 제외 (adtv90_exclude_halt 로 병기)",
+    "halt_treatment_status": "NOT_DECIDED",
+    "observed_in_pilot": {
+      "DATA_MISSING": 0,
+      "TRADING_HALT": "010120 2026-06-30 회차 3일 (04-08~04-10)"
+    },
+    "effect_if_switched": {
+      "010120_adtv90": "241.83B -> 250.17B (+3.4%)",
+      "kr_p10_threshold": "127.63B -> 127.63B (변화 없음)",
+      "inclusion": "변화 없음 — 018260 제외 1건 유지",
+      "why": "h=(9-1)*0.1=0.8 <1 이라 P10 이 최소 2개 값만 사용하고 010120 은 거기에 들지 않는다. 우연이며 일반 보장이 아니다"
+    }
+  },
+  "citation_rule": "as-run 과 병기한다. 보정본 단독 인용 금지."
+}
