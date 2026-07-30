@@ -164,7 +164,7 @@ def bm_level(bk, bu, fxs, days, mode):
     return (0.5 * kr / kr.iloc[0] + 0.5 * us / us.iloc[0]) * BASE_LEVEL
 
 
-def run(st, fx, cal, bk, bu, w, start, end, cfg):
+def run(st, fx, cal, bk, bu, w, start, end, cfg, pub=None):
     days = calc_days(cal, start, end, cfg["days"])
     fxs = fx_series(fx, days, cfg["fx"])
     px = prices_krw(st, w, days, fxs, cfg["ca"])
@@ -172,7 +172,17 @@ def run(st, fx, cal, bk, bu, w, start, end, cfg):
     bm = bm_level(bk, bu, fxs, days, cfg["bmfx"])
     ir = idx.iloc[-1] / BASE_LEVEL - 1.0
     br = bm.iloc[-1] / BASE_LEVEL - 1.0
-    return {
+
+    # 경로 지표 — 터미널값만 보면 놓치는 것을 잡는다.
+    # 조정 경계일을 효력발생일로 잡으면 유령 하락이 위치만 옮겨가므로 최종 레벨은
+    # 같지만 일간수익률·변동성·낙폭이 달라진다. 그 차이가 여기서만 드러난다.
+    ri = idx.pct_change().dropna()
+    rb = bm.reindex(idx.index).pct_change().dropna()
+    common = ri.index.intersection(rb.index)
+    te = float((ri[common] - rb[common]).std(ddof=1) * np.sqrt(252) * 100) if len(common) > 1 else np.nan
+    dd = float((idx / idx.cummax() - 1.0).min() * 100)
+
+    out = {
         "n_days": len(days),
         "index_last": float(idx.iloc[-1]),
         "index_ret_pct": float(ir * 100),
@@ -180,7 +190,22 @@ def run(st, fx, cal, bk, bu, w, start, end, cfg):
         "bm_ret_pct": float(br * 100),
         "excess_pp": float((ir - br) * 100),
         "fx_missing": int(pd.Series(fxs).isna().sum()),
+        "ann_vol_pct": float(ri.std(ddof=1) * np.sqrt(252) * 100),
+        "tracking_err_pct": te,
+        "max_drawdown_pct": dd,
+        "max_daily_ret_pct": float(ri.max() * 100),
+        "min_daily_ret_pct": float(ri.min() * 100),
     }
+    if pub is not None:
+        # 공표 산출물을 재현하는 조합이 어느 것인지 식별한다. 이것은 '엔진이
+        # 무엇을 구현했는가'를 독립 구현으로 확인하는 것이며, 규칙 채택이 아니다.
+        p = pub.set_index("market_date")["index_level"].reindex(idx.index)
+        ok = p.notna()
+        out["repro_max_rel_err"] = (float(((idx[ok] - p[ok]).abs() / p[ok]).max())
+                                    if ok.any() else np.nan)
+        out["reproduces_published"] = bool(ok.sum() == len(pub)
+                                           and out["repro_max_rel_err"] < 1e-9)
+    return out
 
 
 def main():
@@ -243,6 +268,51 @@ def main():
     df = pd.DataFrame(rows)
     dst = os.path.join(OUT, "stage7_sensitivity.csv")
     df.to_csv(dst, index=False, encoding="utf-8-sig")
+
+    # ── 경로 지표 — 터미널값이 같아도 갈리는 축을 드러낸다 ─────
+    print("[경로] 최종 레벨이 같아도 경로가 다른 경우")
+    shown = False
+    for ax, opts in AXES.items():
+        base_r = run(st, fx, cal, bk, bu, w, start, end, BASELINE)
+        for o in opts:
+            if o == BASELINE[ax]:
+                continue
+            cfg = dict(BASELINE); cfg[ax] = o
+            r = run(st, fx, cal, bk, bu, w, start, end, cfg)
+            same_level = abs(r["index_last"] - base_r["index_last"]) < 1e-9
+            diff_path = (abs(r["ann_vol_pct"] - base_r["ann_vol_pct"]) > 1e-6
+                         or abs(r["max_drawdown_pct"] - base_r["max_drawdown_pct"]) > 1e-6)
+            if same_level and diff_path:
+                shown = True
+                print(f"    {ax}={o}  최종레벨 동일인데 경로가 다름")
+                print(f"      변동성 {base_r['ann_vol_pct']:.4f}% -> {r['ann_vol_pct']:.4f}%"
+                      f" · 최대낙폭 {base_r['max_drawdown_pct']:.4f}% -> {r['max_drawdown_pct']:.4f}%"
+                      f" · 최저 일간 {base_r['min_daily_ret_pct']:.4f}% -> {r['min_daily_ret_pct']:.4f}%")
+    if not shown:
+        print("    해당 없음")
+    print()
+
+    # ── 전체 조합을 공표 산출물과 대조 ────────────────────────
+    print("[전수] 96개 조합 중 공표 산출물을 재현하는 조합")
+    keys = list(AXES)
+    full, hits = [], []
+    for combo in itertools.product(*[AXES[k] for k in keys]):
+        cfg = dict(zip(keys, combo))
+        r = run(st, fx, cal, bk, bu, w, start, end, cfg, pub=pub)
+        row = dict(cfg); row.update(r); full.append(row)
+        if r.get("reproduces_published"):
+            hits.append(cfg)
+    pd.DataFrame(full).to_csv(os.path.join(OUT, "stage7_full_grid.csv"),
+                              index=False, encoding="utf-8-sig")
+    print(f"    재현 조합 {len(hits)}개 / 전체 {len(full)}개")
+    for h in hits:
+        print("      " + " · ".join(f"{k}={v}" for k, v in h.items()))
+    if len(hits) == 1:
+        print("    -> 공표 산출물이 어느 규칙으로 만들어졌는지 독립 구현으로 특정됨.")
+        print("       '엔진이 무엇을 했는가'의 확인이며 '그것이 규칙'이라는 뜻은 아니다.")
+    elif not hits:
+        print("    -> 어느 조합도 재현하지 못했다. 명세 밖 처리가 있다는 뜻이므로 확인 필요.")
+    print()
 
     # ── 미결 축이 만드는 전체 폭 ──────────────────────────────
     print("[폭] 각 축이 BM 대비 초과수익에 만드는 최대 격차")
