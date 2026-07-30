@@ -25,7 +25,14 @@ PILOT_OUTPUT = os.path.join(PILOT, "output_krxbm")         # 파일럿 본실행
 PILOT_INPUT_ALT = os.path.join(PILOT, "input")             # 예비 BM 입력
 PILOT_OUTPUT_ALT = os.path.join(PILOT, "output")           # 예비 BM 산출
 
-SEED_BASKET = os.path.join(INPUT_DATA, "seed_basket.csv")  # 유니버스 정본
+# 유니버스 — 두 파일을 구분한다. 섞어 쓰면 한국분이 조용히 빠진다.
+#   INPUT_MANIFEST.md 15행: `../seed_basket.csv` = "수기(권보성 — 미국 9종목분),
+#   김근형 마스터(한국 9종목)와 병합 후 고정". 즉 input_data 쪽은 미국분 원본이고,
+#   병합 정본은 파일럿 입력폴더에 있다. 상수 이름만 보고 정본으로 오인하면
+#   KR9 가 대상에서 빠진 채로 통과한다(2026-07-30 교차검토에서 실제 발생).
+SEED_BASKET_US = os.path.join(INPUT_DATA, "seed_basket.csv")        # 미국 9종목분 원본
+UNIVERSE = os.path.join(PILOT, "input_krxbm", "seed_basket.csv")    # 병합 정본 KR9+US9 = 18
+SEED_BASKET = UNIVERSE                                             # 하위호환 별칭
 
 # --- qa 로컬 작업물 (git 미추적) ---
 FIGURES = os.path.join(HERE, "figures")                    # 대시보드 PNG·지표 JSON

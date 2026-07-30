@@ -6,7 +6,10 @@
         지수 산출이 팀 결과와 일치하는지 교차검증. 통합·폐기 금지.
 
 기준 인용(임의값 사용 금지):
-  - 유니버스     : data/input_data/seed_basket.csv (유니버스 정본, 팀 확정분)
+  - 유니버스     : data/pilot_run/input_krxbm/seed_basket.csv (병합 정본 KR9+US9)
+                  input_data/seed_basket.csv 는 미국 9종목분 원본이다(INPUT_MANIFEST.md 15행).
+                  그 파일을 쓰면 아래 KR 수집경로(_kr_prices)가 한 번도 호출되지 않아
+                  한국분이 교차검증 없이 통과한다 — 2026-07-30 교차검토에서 확인된 결함.
   - 종가         : raw_close = 비조정 종가 (데이터사전 4.1 · auto_adjust=False)
   - 수정주가     : adj_close = 분할만 조정·배당 미조정 (데이터사전 4.1 갱신 · PR 정합)
   - 거래대금     : 공식값 우선, 미확보 시 재구성값 — 여기선 공식(KRX 로그인) 미보유이므로
@@ -34,7 +37,7 @@ P.force_utf8_stdout()
 START, END = "2025-10-01", "2026-07-20"
 ECOS_FX_SERIES = ("731Y001", "0000001")   # 원/달러 일별 — 계열코드 데이터사전 확정 대기(잠정)
 HERE = P.HERE
-DEFAULT_BASKET = P.SEED_BASKET            # data/input_data/seed_basket.csv (유니버스 정본)
+DEFAULT_BASKET = P.UNIVERSE               # 병합 정본 KR9+US9 (미국분만 있는 파일 아님)
 
 
 def _load_env() -> None:
