@@ -731,18 +731,29 @@ def sh_compare(wb, d, refs):
         put(ws, r, 5, codeval, C_CODE, fmt)
         num = isinstance(codeval, (int, float))
         if num:
+            # 사람이 실제로 하는 입력 두 가지를 먼저 걸러낸다. Excel 실측으로 확인한 것이다.
+            #   "90일" · "1023.80 포인트"  -> D*E 산술이 #VALUE! 가 되고 COUNTIF 요약까지 0으로 죽는다
+            #   "16.666667%"              -> Excel 이 0.16666667 로 저장해 조용히 ★차이★ 가 된다
+            # 둘 다 오류값 대신 무엇을 고쳐야 하는지 글로 알려준다.
             put(ws, r, 6, f"=C{r}-E{r}", C_CALC, "0.00E+00")
-            put(ws, r, 7, f'=IF(D{r}="","",D{r}-E{r})', C_CALC, "0.00E+00")
-            # 세 값이 모두 있어야 '3자 일치'. 수기값이 비면 미기입으로 표시된다.
+            put(ws, r, 7,
+                f'=IF(D{r}="","",IF(ISERROR(D{r}*1),"형식오류",D{r}*1-E{r}))',
+                C_CALC, "0.00E+00")
             put(ws, r, 8,
                 f'=IF(D{r}="","수기 미기입",'
-                f'IF(AND(ABS(C{r}-E{r})<0.000001,ABS(D{r}-E{r})<0.000001),"3자 일치","★차이★"))',
+                f'IF(ISERROR(D{r}*1),"★형식오류 — 숫자만 입력★",'
+                f'IF(AND(ABS(C{r}-E{r})<0.000001,ABS(D{r}*1-E{r})<0.000001),"3자 일치",'
+                f'IF(ABS(D{r}*100-E{r})<0.000001,"★단위오류 — %를 빼고 입력★","★차이★"))))',
                 C_CALC, align=CTR)
         else:
+            # 날짜를 타이핑하면 Excel 이 날짜 일련번호로 바꿀 수 있어 문자 비교가 어긋난다.
+            # 원문 비교와 yyyy-mm-dd 변환 비교를 둘 다 허용한다.
             put(ws, r, 6, "—", C_RAW, align=CTR)
             put(ws, r, 7, "—", C_RAW, align=CTR)
             put(ws, r, 8,
-                f'=IF(D{r}="","수기 미기입",IF(AND(C{r}=E{r},D{r}=E{r}),"3자 일치","★차이★"))',
+                f'=IF(D{r}="","수기 미기입",'
+                f'IF(AND(C{r}=E{r},OR(TRIM(D{r})&""=E{r}&"",'
+                f'TEXT(D{r},"yyyy-mm-dd")=E{r}&"")),"3자 일치","★차이★"))',
                 C_CALC, align=CTR)
         put(ws, r, 9, SRC[code], C_RAW)
         put(ws, r, 10, None, C_RAW)
@@ -757,6 +768,9 @@ def sh_compare(wb, d, refs):
         ("★ 3자 일치 — 수기 검산 결과", f'=COUNTIF(H{first}:H{last},"3자 일치")'),
         ("수기 미기입", f'=COUNTIF(H{first}:H{last},"수기 미기입")'),
         ("차이 발생", f'=COUNTIF(H{first}:H{last},"★차이★")'),
+        # 입력 형식 문제를 따로 센다. 이 수가 0 이 아니면 아직 대조 결과를 읽을 수 없다.
+        ("입력 고쳐야 함 (형식·단위)",
+         f'=COUNTIF(H{first}:H{last},"★형식오류*")+COUNTIF(H{first}:H{last},"★단위오류*")'),
     ]:
         put(ws, r, 2, lab, C_RAW, bold=("★" in lab))
         put(ws, r, 3, f, C_ANS if "★" in lab else C_CALC, "#,##0")
