@@ -1,0 +1,24 @@
+{
+  "crosscheck_target": "/mnt/user-data/uploads/AIQuant 3차 프로젝트/06_코드/data/pilot_run/output_f1",
+  "note": "규칙 문서 기준 독립 재구성(v5) — 엔진 코드 미참조 주장 아님(리뷰 수정본)",
+  "cycles": [
+    {
+      "data_cutoff_date": "2026-03-24",
+      "securities": 18,
+      "status_match": true,
+      "seasoning_match": true,
+      "max_relative_error": 1.2734220297227782e-16,
+      "qa_tolerance": 1e-12,
+      "qa_pass": true
+    },
+    {
+      "data_cutoff_date": "2026-06-23",
+      "securities": 18,
+      "status_match": true,
+      "seasoning_match": true,
+      "max_relative_error": 1.8765659201215791e-16,
+      "qa_tolerance": 1e-12,
+      "qa_pass": true
+    }
+  ]
+}
