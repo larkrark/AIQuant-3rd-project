@@ -1,0 +1,9 @@
+upload_created_at=2026-07-28 16:45:19
+source_zip_name=KR9_DART_RCEPTNO_VALIDATOR_GIT_READY_NO_LOCAL_PATH_20260728.zip
+source_zip_sha256=DABF27449A154E5852E0FCA9311DC9F1C7DC42853CF468F3B78F3A8C574EE4F7
+branch_name=handoff/kr9-dart-rceptno-validator-20260728_164514
+repository=https://github.com/geunhyong/AIQuant-3rd-project.git
+uploaded_folder=handoff/kr9_dart_rceptno_validator_git_ready_20260728
+purpose=KR9 DART rcept_no / corp_code validator handoff
+local_path_policy=NO_C_SOPH_OR_source_package_reference_IN_SHARED_TEXT
+not_performed=human_theme_review,theme_revenue_confirmation,backlog_confirmation,role_grade,evidence_grade,gate_status,final_inclusion_decision

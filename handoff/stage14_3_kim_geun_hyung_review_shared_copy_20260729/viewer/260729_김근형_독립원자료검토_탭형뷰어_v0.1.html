@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>김근형 독립 원자료 검토 결과표 · 탭형 뷰어 v0.1</title>
+<style>
+  :root{
+    --bg:#f4f6f8;
+    --panel:#ffffff;
+    --line:#d8dee6;
+    --text:#17212b;
+    --muted:#667281;
+    --accent:#174d7a;
+    --accent2:#e9f1f8;
+    --warn:#8a5a00;
+    --warnbg:#fff6df;
+    --ok:#186a3b;
+    --okbg:#eaf7ef;
+    --danger:#9b2c2c;
+    --dangerbg:#fff0f0;
+    --shadow:0 8px 24px rgba(20,35,50,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Malgun Gothic","맑은 고딕",Arial,sans-serif}
+  header{background:linear-gradient(135deg,#123d63,#1f638f);color:white;padding:22px 24px}
+  header h1{font-size:23px;margin:0 0 7px}
+  header p{margin:0;font-size:13px;opacity:.9;line-height:1.55}
+  .wrap{max-width:1800px;margin:0 auto;padding:18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .load{padding:16px 18px;margin-bottom:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .load label{font-weight:700}
+  input[type=file]{max-width:520px}
+  .boundary{margin-left:auto;font-size:12px;padding:8px 10px;background:var(--warnbg);color:var(--warn);border:1px solid #efd69b;border-radius:8px}
+  .summary{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+  .metric{padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  .metric .k{font-size:12px;color:var(--muted)}
+  .metric .v{font-size:22px;font-weight:800;margin-top:3px}
+  .tabs{display:flex;gap:5px;padding:10px 10px 0;overflow-x:auto;border-bottom:1px solid var(--line)}
+  .tab{border:1px solid transparent;border-bottom:0;background:transparent;padding:11px 14px;cursor:pointer;white-space:nowrap;font-weight:700;color:#465463;border-radius:9px 9px 0 0}
+  .tab.active{background:var(--accent2);color:var(--accent);border-color:var(--line)}
+  .toolbar{padding:12px;display:grid;grid-template-columns:minmax(260px,2fr) repeat(4,minmax(150px,1fr)) auto auto;gap:8px;border-bottom:1px solid var(--line)}
+  .toolbar input,.toolbar select,.toolbar button{height:36px;border:1px solid var(--line);border-radius:7px;background:white;padding:0 10px;font-family:inherit}
+  .toolbar button{cursor:pointer;font-weight:700}
+  .toolbar .primary{background:var(--accent);color:white;border-color:var(--accent)}
+  .table-wrap{overflow:auto;max-height:66vh}
+  table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12px}
+  th,td{border-right:1px solid #e3e7eb;border-bottom:1px solid #e3e7eb;padding:8px 9px;text-align:left;vertical-align:top;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  th{position:sticky;top:0;z-index:3;background:#edf2f6;color:#233343;font-weight:800}
+  tr:hover td{background:#f4f9fd;cursor:pointer}
+  td.wraptext{white-space:normal;line-height:1.45;min-width:340px}
+  .pill{display:inline-block;padding:3px 7px;border-radius:999px;font-weight:700;font-size:11px}
+  .pill.ok{background:var(--okbg);color:var(--ok)}
+  .pill.warn{background:var(--warnbg);color:var(--warn)}
+  .pill.danger{background:var(--dangerbg);color:var(--danger)}
+  .empty{padding:48px 20px;text-align:center;color:var(--muted)}
+  .footerline{padding:9px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+  .drawer{position:fixed;right:0;top:0;height:100vh;width:min(780px,94vw);background:white;z-index:20;box-shadow:-12px 0 30px rgba(0,0,0,.18);transform:translateX(102%);transition:.22s ease;display:flex;flex-direction:column}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{padding:17px 18px;background:#173f61;color:#fff;display:flex;justify-content:space-between;gap:15px;align-items:center}
+  .drawer-head h2{font-size:18px;margin:0}
+  .drawer-head button{border:0;background:rgba(255,255,255,.16);color:white;border-radius:6px;padding:7px 10px;cursor:pointer}
+  .drawer-body{padding:15px 18px;overflow:auto}
+  .group{border:1px solid var(--line);border-radius:9px;margin-bottom:12px;overflow:hidden}
+  .group h3{margin:0;padding:9px 11px;background:#eef3f7;font-size:13px}
+  .kv{display:grid;grid-template-columns:210px 1fr;border-top:1px solid #edf0f3}
+  .kv:first-of-type{border-top:0}
+  .kv .key{padding:8px 10px;background:#fafbfc;color:#4b5864;font-weight:700}
+  .kv .val{padding:8px 10px;white-space:pre-wrap;word-break:break-word}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:19;display:none}
+  .backdrop.open{display:block}
+  .tabnote{padding:8px 12px;background:#fbfcfd;border-bottom:1px solid var(--line);font-size:12px;color:#566574}
+  @media(max-width:1100px){
+    .summary{grid-template-columns:repeat(3,1fr)}
+    .toolbar{grid-template-columns:1fr 1fr}
+    .boundary{margin-left:0;width:100%}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>김근형 독립 원자료 검토 결과표 · 탭형 뷰어 v0.1</h1>
+  <p>CSV 원본을 브라우저 안에서만 읽습니다. 값·판정·미결사항을 탭별로 확인하며, 승인·적용·승격은 수행하지 않습니다.</p>
+</header>
+
+<div class="wrap">
+  <section class="panel load">
+    <label for="csvFile">검토 결과 CSV 선택</label>
+    <input id="csvFile" type="file" accept=".csv,text/csv">
+    <span id="fileInfo">아직 파일을 선택하지 않았습니다.</span>
+    <span class="boundary">읽기 전용 조회 · 원본 수정 없음 · NOT_APPLIED · NOT_PROMOTED</span>
+  </section>
+
+  <section class="summary">
+    <div class="metric"><div class="k">전체 행</div><div class="v" id="mTotal">0</div></div>
+    <div class="metric"><div class="k">CIK 검토</div><div class="v" id="mCik">0</div></div>
+    <div class="metric"><div class="k">날짜 검토</div><div class="v" id="mDate">0</div></div>
+    <div class="metric"><div class="k">우선 사람검토</div><div class="v" id="mPriority">0</div></div>
+    <div class="metric"><div class="k">미결사항 존재</div><div class="v" id="mUnresolved">0</div></div>
+    <div class="metric"><div class="k">승격됨</div><div class="v" id="mPromoted">0</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="tabs" id="tabs"></div>
+    <div class="tabnote" id="tabNote">CSV를 선택하면 탭별 검토 화면이 열립니다.</div>
+    <div class="toolbar">
+      <input id="search" placeholder="accession·CIK·회사명·판정문구 검색">
+      <select id="groupFilter"><option value="">검토그룹 전체</option></select>
+      <select id="reviewFilter"><option value="">검토판정 전체</option></select>
+      <select id="approvalFilter"><option value="">승인상태 전체</option></select>
+      <select id="promotionFilter"><option value="">승격상태 전체</option></select>
+      <button id="clearBtn">필터 초기화</button>
+      <button id="exportBtn" class="primary">현재 화면 CSV 저장</button>
+    </div>
+    <div class="table-wrap" id="tableWrap">
+      <div class="empty">먼저 CSV 파일을 선택해 주세요.</div>
+    </div>
+    <div class="footerline">
+      <span id="rowCount">표시 행 0</span>
+      <span>행을 클릭하면 전체 상세기록을 확인할 수 있습니다.</span>
+    </div>
+  </section>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 id="drawerTitle">상세기록</h2>
+    <button id="closeDrawer">닫기</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+const PRIORITY_IDS = new Set([
+  '000095017023014423',
+  '000095017025100235',
+  '000119312526191507',
+  '000162828026004195',
+  '000162828026049411'
+]);
+
+const TAB_DEFS = [
+  {
+    id:'all', label:'전체 42건',
+    note:'모든 검토행을 기본 식별정보와 핵심 상태 중심으로 봅니다.',
+    cols:['review_group','accession_norm','checked_value','source_value_confirmation_status',
+          'role_interpretation_status','date_semantics_status','missing_cause_status',
+          'reviewer_review_status','unresolved_issue','approval_status','application_status','promotion_status']
+  },
+  {
+    id:'cik', label:'CIK 27건',
+    note:'회사 CIK 후보값, 제출자 역할, 원자료 존재 및 결과필드 공란 판정을 확인합니다.',
+    predicate:r => val(r,'review_group') === 'CIK_REVIEW',
+    cols:['accession_norm','checked_value','source_value_confirmation_status','role_interpretation_status',
+          'missing_cause_status','reviewer_review_status','unresolved_issue',
+          'approval_status','application_status','promotion_status']
+  },
+  {
+    id:'date', label:'날짜 15건',
+    note:'accepted_datetime과 filing_date의 의미·관계만 확인하며 data_available_date는 확정하지 않습니다.',
+    predicate:r => val(r,'review_group') === 'DATE_SEMANTICS_REVIEW',
+    cols:['accession_norm','checked_value','date_semantics_status','reviewer_observation',
+          'reviewer_judgment','reviewer_review_status','unresolved_issue',
+          'approval_status','application_status','promotion_status']
+  },
+  {
+    id:'priority', label:'우선 사람검토 5건',
+    note:'특별 보류사유 1건과 CONTRACT_PATH_ROLE_FALLBACK이 기록된 4건입니다.',
+    predicate:r => PRIORITY_IDS.has(val(r,'accession_norm')),
+    cols:['accession_norm','checked_value','evidence_source','evidence_record_locator',
+          'reviewer_confirmed_scope','reviewer_observation','reviewer_judgment',
+          'missing_cause_status','unresolved_issue','reviewer_review_status',
+          'approval_status','application_status','promotion_status']
+  },
+  {
+    id:'evidence', label:'근거·위치',
+    note:'실질 근거자료, 파일·경로·locator, 검토자가 책임지는 확인범위를 함께 봅니다.',
+    cols:['review_group','accession_norm','checked_value','evidence_source','evidence_path',
+          'evidence_record_locator','reviewer_confirmed_scope','source_value_confirmation_status']
+  },
+  {
+    id:'judgment', label:'관찰·판정',
+    note:'원자료에서 직접 본 사실과 김근형 검토자의 판단을 나란히 봅니다.',
+    cols:['review_group','accession_norm','checked_value','reviewer_observation',
+          'reviewer_judgment','reviewer_review_status','reviewer_note']
+  },
+  {
+    id:'boundary', label:'미결·상태축',
+    note:'검토판정과 공식 승인·적용·승격 상태가 섞이지 않았는지 확인합니다.',
+    cols:['review_group','accession_norm','missing_cause_status','unresolved_issue',
+          'approval_status','application_status','promotion_status','result_lock_status']
+  }
+];
+
+const GROUPS = [
+  ['식별·기본정보',['review_item_id','review_group','accession_norm','company_name','form_type','checked_value']],
+  ['원자료·근거',['evidence_source','evidence_path','evidence_record_locator','reviewer_confirmed_scope']],
+  ['기술관찰·상태',['source_value_confirmation_status','role_interpretation_status','date_semantics_status','missing_cause_status']],
+  ['검토자 기록',['reviewer_observation','reviewer_judgment','reviewer_review_status','reviewer_note','unresolved_issue']],
+  ['승인·적용·승격',['approval_status','application_status','promotion_status','result_lock_status']],
+  ['검토자·시각',['reviewer','reviewer_role','reviewed_at']]
+];
+
+let rows = [];
+let headers = [];
+let activeTab = 'all';
+let visibleRows = [];
+let normalizedMap = {};
+
+function norm(s){ return String(s ?? '').toLowerCase().replace(/[^a-z0-9가-힣]/g,''); }
+function buildMap(){
+  normalizedMap = {};
+  headers.forEach(h => normalizedMap[norm(h)] = h);
+}
+function realKey(candidate){
+  return headers.includes(candidate) ? candidate : (normalizedMap[norm(candidate)] || candidate);
+}
+function val(row, candidate){
+  const k = realKey(candidate);
+  return row && row[k] != null ? String(row[k]) : '';
+}
+
+function parseCSV(text){
+  const out=[]; let row=[]; let cur=''; let quoted=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(quoted){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ cur+='"'; i++; }
+        else quoted=false;
+      } else cur+=ch;
+    } else {
+      if(ch === '"') quoted=true;
+      else if(ch === ','){ row.push(cur); cur=''; }
+      else if(ch === '\n'){ row.push(cur); out.push(row); row=[]; cur=''; }
+      else if(ch !== '\r') cur+=ch;
+    }
+  }
+  if(cur.length || row.length){ row.push(cur); out.push(row); }
+  while(out.length && out[out.length-1].every(x=>x==='')) out.pop();
+  if(!out.length) return {headers:[],rows:[]};
+  const hs=out[0].map(x=>x.replace(/^\uFEFF/,'').trim());
+  const rs=out.slice(1).filter(r=>r.some(x=>x!=='')).map(arr=>{
+    const o={}; hs.forEach((h,i)=>o[h]=arr[i] ?? ''); return o;
+  });
+  return {headers:hs,rows:rs};
+}
+
+function unique(field){
+  return [...new Set(rows.map(r=>val(r,field)).filter(Boolean))].sort();
+}
+function fillSelect(id, field, firstLabel){
+  const el=document.getElementById(id);
+  el.innerHTML=`<option value="">${firstLabel}</option>` +
+    unique(field).map(x=>`<option>${escapeHtml(x)}</option>`).join('');
+}
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function pillClass(v){
+  const x=String(v);
+  if(/CONFIRMED|MATCH|PASS|NOT_APPLIED|NOT_PROMOTED/.test(x)) return 'ok';
+  if(/PENDING|UNRESOLVED|REVIEW|NOT_DETERMINED|UNKNOWN/.test(x)) return 'warn';
+  if(/ERROR|FAIL|DIFFERENCE_REVIEW_REQUIRED/.test(x)) return 'danger';
+  return '';
+}
+function isStatusColumn(c){ return /status|result|판정|상태/i.test(c); }
+
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = TAB_DEFS.map(t=>
+    `<button class="tab ${t.id===activeTab?'active':''}" data-tab="${t.id}">${t.label}</button>`
+  ).join('');
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+    activeTab=b.dataset.tab; renderTabs(); render();
+  });
+}
+
+function activeDef(){ return TAB_DEFS.find(t=>t.id===activeTab) || TAB_DEFS[0]; }
+
+function applyFilters(){
+  const def=activeDef();
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  const gf=document.getElementById('groupFilter').value;
+  const rf=document.getElementById('reviewFilter').value;
+  const af=document.getElementById('approvalFilter').value;
+  const pf=document.getElementById('promotionFilter').value;
+  return rows.filter(r=>{
+    if(def.predicate && !def.predicate(r)) return false;
+    if(gf && val(r,'review_group')!==gf) return false;
+    if(rf && val(r,'reviewer_review_status')!==rf) return false;
+    if(af && val(r,'approval_status')!==af) return false;
+    if(pf && val(r,'promotion_status')!==pf) return false;
+    if(q){
+      const hay=headers.map(h=>String(r[h]??'')).join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function render(){
+  const def=activeDef();
+  document.getElementById('tabNote').textContent=def.note;
+  visibleRows=applyFilters();
+  const cols=def.cols.map(realKey).filter(c=>headers.includes(c));
+  const wrapCols=new Set(['reviewer_observation','reviewer_judgment','unresolved_issue','reviewer_note'].map(realKey));
+  const target=document.getElementById('tableWrap');
+
+  if(!rows.length){ target.innerHTML='<div class="empty">먼저 CSV 파일을 선택해 주세요.</div>'; return; }
+  if(!cols.length){ target.innerHTML='<div class="empty">현재 CSV에서 이 탭에 필요한 열을 찾지 못했습니다.</div>'; return; }
+  if(!visibleRows.length){ target.innerHTML='<div class="empty">현재 조건에 맞는 행이 없습니다.</div>'; document.getElementById('rowCount').textContent='표시 행 0'; return; }
+
+  let html='<table><thead><tr>'+cols.map(c=>`<th title="${escapeHtml(c)}">${escapeHtml(c)}</th>`).join('')+'</tr></thead><tbody>';
+  visibleRows.forEach((r,idx)=>{
+    html+=`<tr data-idx="${idx}">`+cols.map(c=>{
+      const v=String(r[c]??'');
+      const cls=wrapCols.has(c)?'wraptext':'';
+      const inner=isStatusColumn(c) && v ? `<span class="pill ${pillClass(v)}">${escapeHtml(v)}</span>` : escapeHtml(v);
+      return `<td class="${cls}" title="${escapeHtml(v)}">${inner}</td>`;
+    }).join('')+'</tr>';
+  });
+  html+='</tbody></table>';
+  target.innerHTML=html;
+  target.querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>openDrawer(visibleRows[Number(tr.dataset.idx)]));
+  document.getElementById('rowCount').textContent=`표시 행 ${visibleRows.length} / 전체 ${rows.length}`;
+}
+
+function openDrawer(row){
+  const acc=val(row,'accession_norm') || val(row,'review_item_id') || '상세기록';
+  document.getElementById('drawerTitle').textContent=acc;
+  const used=new Set();
+  let html='';
+  GROUPS.forEach(([title,fields])=>{
+    const available=fields.map(realKey).filter(k=>headers.includes(k));
+    if(!available.length) return;
+    html+=`<section class="group"><h3>${title}</h3>`;
+    available.forEach(k=>{
+      used.add(k);
+      html+=`<div class="kv"><div class="key">${escapeHtml(k)}</div><div class="val">${escapeHtml(row[k]??'')}</div></div>`;
+    });
+    html+='</section>';
+  });
+  const rest=headers.filter(h=>!used.has(h));
+  if(rest.length){
+    html+='<section class="group"><h3>기타 원본 필드</h3>';
+    rest.forEach(k=>html+=`<div class="kv"><div class="key">${escapeHtml(k)}</div><div class="val">${escapeHtml(row[k]??'')}</div></div>`);
+    html+='</section>';
+  }
+  document.getElementById('drawerBody').innerHTML=html;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('open');
+}
+
+function updateMetrics(){
+  document.getElementById('mTotal').textContent=rows.length;
+  document.getElementById('mCik').textContent=rows.filter(r=>val(r,'review_group')==='CIK_REVIEW').length;
+  document.getElementById('mDate').textContent=rows.filter(r=>val(r,'review_group')==='DATE_SEMANTICS_REVIEW').length;
+  document.getElementById('mPriority').textContent=rows.filter(r=>PRIORITY_IDS.has(val(r,'accession_norm'))).length;
+  document.getElementById('mUnresolved').textContent=rows.filter(r=>val(r,'unresolved_issue').trim()!=='').length;
+  document.getElementById('mPromoted').textContent=rows.filter(r=>val(r,'promotion_status') && val(r,'promotion_status')!=='NOT_PROMOTED').length;
+}
+
+function csvEscape(v){
+  const s=String(v??'');
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function exportVisible(){
+  if(!visibleRows.length) return alert('저장할 행이 없습니다.');
+  const def=activeDef();
+  const cols=def.cols.map(realKey).filter(c=>headers.includes(c));
+  const text=[cols.join(','),...visibleRows.map(r=>cols.map(c=>csvEscape(r[c])).join(','))].join('\r\n');
+  const blob=new Blob(['\uFEFF'+text],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`김근형_검토결과_${activeTab}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('csvFile').addEventListener('change', async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const text=await f.text();
+  const parsed=parseCSV(text);
+  headers=parsed.headers; rows=parsed.rows; buildMap();
+  document.getElementById('fileInfo').textContent=`${f.name} · ${rows.length}행 · ${headers.length}열`;
+  fillSelect('groupFilter','review_group','검토그룹 전체');
+  fillSelect('reviewFilter','reviewer_review_status','검토판정 전체');
+  fillSelect('approvalFilter','approval_status','승인상태 전체');
+  fillSelect('promotionFilter','promotion_status','승격상태 전체');
+  updateMetrics(); renderTabs(); render();
+});
+['search','groupFilter','reviewFilter','approvalFilter','promotionFilter'].forEach(id=>{
+  document.getElementById(id).addEventListener(id==='search'?'input':'change',render);
+});
+document.getElementById('clearBtn').onclick=()=>{
+  ['search','groupFilter','reviewFilter','approvalFilter','promotionFilter'].forEach(id=>document.getElementById(id).value='');
+  render();
+};
+document.getElementById('exportBtn').onclick=exportVisible;
+document.getElementById('closeDrawer').onclick=closeDrawer;
+document.getElementById('backdrop').onclick=closeDrawer;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+renderTabs();
+</script>
+</body>
+</html>

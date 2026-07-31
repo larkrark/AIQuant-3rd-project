@@ -1,0 +1,2 @@
+﻿"qa_status","result_table_rows","judgment_table_rows","completed_review_rows","pending_review_rows","pending_cik_review_rows","pending_date_semantics_rows","batch_target_rows","result_table_after_sha256","judgment_table_after_sha256","approval_status","application_status","promotion_status"
+"PASS","42","42","27","15","0","15","13","330F528E2E26E5469E333EB43AC9E2C3247C2B7EF131B3AFAE1FE90CFB5913B2","93FE0596777E5254242897834F7D64B25617A6C6EF9ADB2A590D169080AA5B0E","AUTHORITATIVE_SOURCE_APPROVAL_PENDING","NOT_APPLIED","NOT_PROMOTED"

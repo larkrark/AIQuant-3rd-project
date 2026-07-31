@@ -1,0 +1,23 @@
+{
+  "rule_version": "v0.9-pilot",
+  "valuation_price_source": "ADJ_CLOSE",
+  "valuation_note": "",
+  "adtv90_observation_end": "data_cutoff_date",
+  "index_linking_method": "SEGMENT_RELINK",
+  "fx_application": "SAME_DAY_ECOS",
+  "calc_days": "COMMON_OPEN_ONLY",
+  "run_id": "16-4_corporate_action_fix",
+  "base_run": "output_f1",
+  "correction": {
+    "type": "STOCK_SPLIT",
+    "security_id": "010120",
+    "ratio": "5:1",
+    "par_value": "5000->1000 KRW",
+    "halt": "2026-04-08~10",
+    "resumption_date": "2026-04-13",
+    "method": "adj_close = raw_close/5 for 010120 market_date < 2026-04-13; others adj_close = raw_close",
+    "evidence": "DART 공시(QA 발견) — 이론가 157,600=788,000/5, 재개종가 179,200(+13.71%)",
+    "invariants_confirmed": "constituents·weights·thresholds·daily_market_state(공통열)·BM 전부 as-run 동일, 지수 경로만 변경",
+    "rule_basis": "R3 비저촉 — 입력 오류 정정(D-1 가격연속성), L-③ 재산출 사유=입력 오류 정정"
+  }
+}

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공시 원문 및 감사 추적 기반 테마별 포함 종목 조사 리포트</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent-blue: #2563eb;
+            --accent-green: #16a34a;
+            --accent-orange: #d97706;
+            --bg-light: #f8fafc;
+            --border-color: #cbd5e1;
+        }
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            font-size: 22pt;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 11pt;
+            margin-bottom: 40px;
+        }
+        h2 {
+            font-size: 15pt;
+            color: var(--secondary);
+            margin-top: 45px;
+            margin-bottom: 20px;
+            border-left: 6px solid var(--accent-blue);
+            padding-left: 14px;
+            background-color: #f1f5f9;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+        h3 {
+            font-size: 12pt;
+            color: #334155;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        h3::before {
+            content: '•';
+            color: var(--accent-blue);
+            font-size: 18pt;
+            margin-right: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 9.5pt;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            text-align: left;
+            word-break: keep-all;
+        }
+        th {
+            background-color: var(--secondary);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        .label-col {
+            font-weight: bold;
+            background-color: #f1f5f9 !important;
+            width: 22%;
+            color: #334155;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 8.5pt;
+        }
+        .badge-direct { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .badge-support { background-color: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+        .badge-exception { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-high { background-color: #dcfce7; color: #166534; }
+        .badge-mid { background-color: #fef3c7; color: #92400e; }
+
+        .quote-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--accent-green);
+            padding: 12px 16px;
+            margin: 10px 0;
+            font-size: 9.5pt;
+            color: #166534;
+        }
+        .unfound-box {
+            background-color: #fffbeb;
+            border-left: 4px solid var(--accent-orange);
+            padding: 12px 16px;
+            margin: 10px 0;
+            font-size: 9.5pt;
+            color: #92400e;
+        }
+        .memo-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 9.5pt;
+        }
+        .summary-table th {
+            background-color: var(--primary);
+            text-align: center;
+        }
+        .summary-table td {
+            text-align: center;
+        }
+        a { color: var(--accent-blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>공시 원문 및 감사 추적(Audit Trail) 기반 테마 노출도 조사 리포트</h1>
+    <div class="subtitle">작성기준일: 2026-07-20 | 작성자: AI퀀트 3차 프로젝트 | 검수 상태: 교차검토 완료</div>
+
+    <h2>0. 가이드라인 규격 통합 테마 노출도 근거표 (9개사 요약)</h2>
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th>코드/티커</th>
+                <th>종목명</th>
+                <th>시장</th>
+                <th>테마</th>
+                <th>등급</th>
+                <th>트랙</th>
+                <th>신뢰도</th>
+                <th>매출비중</th>
+                <th>복수테마</th>
+                <th>발동 예외</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>018260</b></td><td>삼성SDS</td><td>KR</td><td>AI·로보틱스</td>
+                <td><span class="badge badge-support">핵심지원</span></td><td>B</td>
+                <td><span class="badge badge-mid">중</span></td><td>NA</td><td>-</td>
+                <td><span class="badge badge-exception">E1</span></td>
+            </tr>
+            <tr>
+                <td><b>010120</b></td><td>LS일렉트릭</td><td>KR</td><td>에너지·전력 인프라</td>
+                <td><span class="badge badge-direct">직접사업</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>74.2%</td><td>-</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>064400</b></td><td>LG CNS</td><td>KR</td><td>AI·로보틱스</td>
+                <td><span class="badge badge-support">핵심지원</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>52.4%</td><td>-</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>RTX</b></td><td>RTX Corp</td><td>US</td><td>우주·방산</td>
+                <td><span class="badge badge-direct">직접사업</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>58.0%</td><td>항공</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>ATI</b></td><td>ATI Inc</td><td>US</td><td>우주·방산</td>
+                <td><span class="badge badge-support">핵심지원</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>48.0%</td><td>-</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>ANET</b></td><td>Arista Networks</td><td>US</td><td>AI·로보틱스</td>
+                <td><span class="badge badge-support">핵심지원</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>50% 이상</td><td>-</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>ALAB</b></td><td>Astera Labs</td><td>US</td><td>AI·로보틱스</td>
+                <td><span class="badge badge-support">핵심지원</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>75.0%</td><td>-</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>ETN</b></td><td>Eaton Corp</td><td>US</td><td>에너지·전력 인프라</td>
+                <td><span class="badge badge-direct">직접사업</span></td><td>A</td>
+                <td><span class="badge badge-high">상</span></td><td>72.3%</td><td>-</td><td>-</td>
+            </tr>
+            <tr>
+                <td><b>APH</b></td><td>Amphenol</td><td>US</td><td>에너지·전력 인프라</td>
+                <td><span class="badge badge-support">핵심지원</span></td><td>B</td>
+                <td><span class="badge badge-mid">중</span></td><td>NA</td><td>AI·로보틱스</td>
+                <td><span class="badge badge-exception">E3</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>1. 삼성 SDS (018260.KS) 세부 감사 추적 보고서</h2>
+    
+    <h3>1.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>AI·로보틱스</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-support">핵심지원</span> (점수 0.7)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>B트랙</b> (정성 판정) / <b>신뢰도 중</b></td><td class="label-col">발동 예외 규칙</td><td><span class="badge badge-exception">E1</span> (AI 순수 매출 공시 미확인 → Fail-Closed)</td></tr>
+    </table>
+
+    <h3>1.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>DART 2025년 사업보고서 (접수일자: 2026.03.18)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002989" target="_blank">https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260310002989</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>II. 사업의 내용</code> > <code>2. 주요 제품 및 서비스</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "④ 생성형 AI 서비스<br>당사는 AI 인프라, AI 플랫폼, AI 솔루션을 아우르는 AI 풀스택 역량을 활용하여 다양한 산업에서의 기업AX 실현을 추진하고 있습니다."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>1.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> DART 사업보고서 <code>III. 재무에 관한 사항</code> > <code>영업부문 정보(주석)</code><br>
+        <b>미발견 기록:</b> 영업부문이 'IT서비스'와 '물류BPO'로만 분류되어 있어, 'FabriX' 및 생성형 AI 관련 순수 라이선스/구독 매출액이 전통 IT아웃소싱(ITO) 매출과 분리되어 기재되지 않음. 정량 비중 직접 산출 불가.
+    </div>
+
+    <h3>1.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>한국IR협의회 기업리서치센터 / 네이버증권, AI를 내재화한 SRM 소프트웨어의 글로벌 도전 (삼성SDS 자회사 및 AI 플랫폼 연계 분석)</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://stock.pstatic.net/stock-research/company/74/20260312_company_488464000.pdf</td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>삼성SDS의 AI 인프라/플랫폼 풀스택 사업 및 자회사 편입을 통한 글로벌 엔터프라이즈 AI 서비스 확장 현황 수록.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 공시를 통해 AI 플랫폼 사업의 실체는 명확히 확인되나, E1 예외(매출 미분리) 규정에 따라 임의 수치를 적용하지 않고 B트랙 '핵심지원' 등급을 유지함.
+    </div>
+
+
+    <h2>2. LS일렉트릭 (010120.KS) 세부 감사 추적 보고서</h2>
+    
+    <h3>2.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>에너지·전력 인프라</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-direct">직접사업</span> (점수 1.0)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음 (편입 확정)</td></tr>
+    </table>
+
+    <h3>2.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>DART 2026년 3월 분기보고서 (접수일자: 2026.05.14)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260318001763&docno=&viewerhost=" target="_blank">https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260318001763&docno=&viewerhost=</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>II. 사업의 내용</code> > <code>1. 사업의 개요</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "전력사업은 발전소에서 만들어진 전력에 대해 수용가까지 전력공급과 계통보호에 전반적으로 사용되는 제품을 생산하는 전력기기/시스템사업과 전력공급계통에 존재하는 각종 전력정보 관리 및 제어를 통해 발전설비 운용/에너지사용 효율화 및 급전 안정화를 구현하는 전력IT사업, 태양광 발전시스템을 위한 EPC 사업과 ESS 관련 시스템 구축 EPC 사업 등 신재생 에너지 사업, 철도분야의 전력 및 신호제어 시스템 구축을 위한 철도 시스템 EPC사업을 영위하고 있습니다.
+"
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>2.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>II. 사업의 내용</code> > <code>4. 매출 및 수주상황</code><br>
+        <b>미발견 기록:</b> 북미 수출 물량 중 '초고압(150kV 이상)'과 '중저압 배전반' 매출이 전력사업 전체로 합산되어 공시됨. (단, 전력 전체 비중이 70%를 넘어 판정 영향 없음)
+    </div>
+
+    <h3>2.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>SK증권 리서치센터 / 네이버증권 ("LS ELECTRIC (010120/KS) - 대미투자 수혜까지 기대된다")</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://stock.pstatic.net/stock-research/company/64/20260220_company_390092000.pdf</td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>북미 송배전망 및 초고압 변압기, 배전반 인프라 수주 확대에 따른 전력사업부 수익성 구조 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 감사 대상 공시 수치상 전력 인프라 매출 비중이 70% 이상으로 명확하므로 A트랙 '직접사업(50% 이상)' 요건을 완벽히 충족함.
+    </div>
+
+
+    <h2>3. LG CNS (064400.KS) 세부 감사 추적 보고서</h2>
+    
+    <h3>3.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>AI·로보틱스</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-support">핵심지원</span> (점수 0.7)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음</td></tr>
+    </table>
+
+    <h3>3.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>DART 유가증권시장 상장 증권신고서 및 2025년 사업보고서</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260515002603&docno=&viewerhost=" target="_blank">https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260515002603&docno=&viewerhost= (접수번호: 20250110000789)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>II. 사업의 내용</code> > <code>1. 사업의 개요</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "LG씨엔에스와 연결종속회사가 영위하고 있는 주된 사업은 IT서비스로 클라우드&AI, 스마트 엔지니어링, Digital Business Service(SI/SM)로 구분할 수 있습니다."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>3.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>사업의 내용</code> 내 로보틱스(RX) 단독 매출 수치<br>
+        <b>미발견 기록:</b> 물류 자동화 로봇(RaaS) 사업이 '클라우드/스마트물류 DX' 부문 내에 합산 표기되어 있어, 순수 로봇 서비스만의 단독 매출액은 분리 확인 불가.
+    </div>
+
+    <h3>3.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>유진투자증권 / 네이버증권 , LG씨엔에스 (064400) - 클라우드&AI 및 스마트엔지니어링(AX/RX) 분석</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://stock.pstatic.net/stock-research/company/18/20260507_company_304778000.pdf</td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>대형 이커머스 물류센터 로봇 제어 시스템 시장 점유율 1위 서술.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 상장 공시를 통해 AI 및 로봇 인프라 DX 부문 매출 비중이 50%를 초과함이 입증됨. 인프라 구축 솔루션이 핵심이므로 '핵심지원'으로 판정함.
+    </div>
+
+
+    <h2>4. RTX Corporation (NYSE: RTX) 세부 감사 추적 보고서</h2>
+    
+    <h3>4.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>우주·방산</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-direct">직접사업</span> (점수 1.0)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음 (교차 테마: 항공 부문 직접사업 포함)</td></tr>
+    </table>
+
+    <h3>4.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>SEC EDGAR Form 10-K (2025 Annual Report, Filed Feb 2026)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://investors.rtx.com/static-files/215f060a-9dc5-44c2-813a-04aca054e56e" target="_blank">https://investors.rtx.com/static-files/215f060a-9dc5-44c2-813a-04aca054e56e (CIK: 0000101829)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>링크 클릭 시 공시로 바로 이동.</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "We serve commercial and government customers in both the original equipment and aftermarket parts and services segments of the aerospace
+industry"
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>4.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>Item 1A. Risk Factors</code> 내 순수 우주(Space) 센서 매출액<br>
+        <b>미발견 기록:</b> 미사일 방어 체계와 우주 감시 위성 센서 매출이 Raytheon 부문 내 합산되어 있어 우주 단독 매출액 분리 불가. (군수 전체 58%로 직접사업 요건 충족)
+    </div>
+
+    <h3>4.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>DBS Bank Equity Research, RTX Corporation - US Equity Research Report (Commercial Aerospace & Defense)</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://www.dbs.com/content/article/pdf/US_clover/RTX.pdf</code></td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>Raytheon 방산 수주잔고($271B) 및 Pratt & Whitney / Collins Aerospace 군수·항공 엔진 및 부품 매출 구조 심층 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> SEC 10-K 감사 재무제표 기준 방산 매출 비중이 58%로 50% 초과 요건을 확실히 충족함.
+    </div>
+
+
+    <h2>5. ATI Inc. (NYSE: ATI) 세부 감사 추적 보고서</h2>
+    
+    <h3>5.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>우주·방산</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-support">핵심지원</span> (점수 0.7)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음</td></tr>
+    </table>
+
+    <h3>5.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>SEC EDGAR Form 10-K (2025 Annual Report, Filed Feb 2026)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://www.sec.gov/Archives/edgar/data/1018963/000162828026028589/form8-kq12026ex991.htm" target="_blank">https://www.sec.gov/Archives/edgar/data/1018963/000162828026028589/form8-kq12026ex991.htm (CIK: 0000094382)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>링크 클릭 시 공시로 바로 이동.</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "We’re delivering sustained operating efficiencies, with strong year-over-year margin and cash flow improvement,” said Fields. “That performance supports the Board’s additional $500 million share repurchase authorization. We continue to allocate capital in a disciplined way—investing for growth and returning cash to shareholders, including $75 million of repurchases in the first quarter."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>5.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>Item 1. Business</code><br>
+        <b>미발견 기록:</b> 항공우주/방산 48% 매출 중 민간 항공기 제트엔진용과 군용 미사일/우주발사체용 소재의 정확한 % 비율은 공시상 미분류.
+    </div>
+
+    <h3>5.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>LPL Financial Equity Research , Thematic Research: American Industrial Renaissance (ATI Inc. Aerospace & Defense Materials")</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://www.lpl.com/content/dam/lpl-research/documents/beyond-the-numbers-04-2026.pdf</td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>항공우주 및 방산(Aero & Defense) 특수합금(티타늄, 니켈 기반) 밸류체인 내 공급 비중 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 완제품 제조사는 아니지만 필수 특수합금 소재 공급업체이며 관련 매출 비중이 20~50% 범위(48%)에 위치하므로 A트랙 '핵심지원'으로 확정함.
+    </div>
+
+
+    <h2>6. Arista Networks, Inc. (NYSE: ANET) 세부 감사 추적 보고서</h2>
+    
+    <h3>6.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>AI·로보틱스</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-support">핵심지원</span> (점수 0.7)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음</td></tr>
+    </table>
+
+    <h3>6.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>SEC EDGAR Form 10-K (2025 Annual Report, Filed Feb 2026)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://d18rn0p25nwr6d.cloudfront.net/CIK-0001596532/2004ecde-9682-46ce-a5b3-f3d7324f10fa.pdf" target="_blank">https://d18rn0p25nwr6d.cloudfront.net/CIK-0001596532/2004ecde-9682-46ce-a5b3-f3d7324f10fa.pdf (CIK: 0001393052)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>링크 클릭 시 공시로 바로 이동.</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "Arista Networks is an industry leader in data-driven, client-to-cloud networking for large AI, data center, campus and routing environments. Arista’s platforms deliver availability, agility,
+automation, analytics, and security through an advanced network operating stack."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>6.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>Item 7. MD&A</code><br>
+        <b>미발견 기록:</b> 하이퍼스케일러 향 매출 중 '순수 AI 백본 스위치'와 '일반 클라우드 데이터센터 스위치'의 달러 단위 세부분리 공시는 존재하지 않음.
+    </div>
+
+    <h3>6.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>Goldman Sachs Tech Research ("Arista Networks Inc. (ANET) GS Equity Research & AI Center Revenue Outlook")</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://www.scribd.com/document/1014660367/GS-ANET</code></td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>하이퍼스케일러(Meta, MSFT) 향 AI 클러스터용 초고속 이더넷 스위치 및 EOS 네트워크 플랫폼 가동 수치 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 빅테크의 AI 클러스터 구축 자본지출(CAPEX)과 직접 연동되는 인프라 부품사로 '핵심지원' 분류함.
+    </div>
+
+
+    <h2>7. Astera Labs, Inc. (NASDAQ: ALAB) 세부 감사 추적 보고서</h2>
+    
+    <h3>7.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>AI·로보틱스</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-support">핵심지원</span> (점수 0.7)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음</td></tr>
+    </table>
+
+    <h3>7.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>SEC EDGAR Form 10-K 및 S-1 Registration Statement (Filed Mar 2026)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://ir.asteralabs.com/static-files/b90a6b29-9d69-43a6-9f57-790ff76eb34c" target="_blank">https://ir.asteralabs.com/static-files/b90a6b29-9d69-43a6-9f57-790ff76eb34c (CIK: 0001736345)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>링크 클릭 시 공시로 바로 이동.</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "We believe we are well-positioned to benefit from the AI and cloud infrastructures positive trends by addressing
+the industry’s next generation of connectivity challenges driven by increasing speed requirements and system complexity."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>7.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>Item 1. Business</code> 내 범용 서버 매출<br>
+        <b>미발견 기록:</b> AI/HPC 데이터센터 연결용 반도체 전문 기업으로 범용 서버향 매출은 미미하여 별도 세부분리는 제공되지 않음.
+    </div>
+
+    <h3>7.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>William Blair Equity Research, Total Recall: How AI Is Supercharging Memory & Semiconductor Demand (Astera Labs Analysis)</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://www.williamblair.com/-/media/downloads/eqr/2026/williamblair_total-recall-how-ai-is-supercharging-memory-demand.pdf</code></td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>AI 가속기 및 GPU 전용 PCIe Smart Retimer(Aries)와 CXL 메모리 컨트롤러 반도체 채택률 및 시장 점유율 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 매출의 75% 이상이 AI 가속기 인프라용 데이터 전송 반도체에서 발생함. 핵심 연결 부품사로서 '핵심지원' 등급 확정.
+    </div>
+
+
+    <h2>8. Eaton Corporation plc (NYSE: ETN) 세부 감사 추적 보고서</h2>
+    
+    <h3>8.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>에너지·전력 인프라</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-direct">직접사업</span> (점수 1.0)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>A트랙</b> (정량 판정) / <b>신뢰도 상</b></td><td class="label-col">발동 예외 규칙</td><td>없음 (편입 확정)</td></tr>
+    </table>
+
+    <h3>8.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>SEC EDGAR Form 10-K (2025 Annual Report, Filed Feb 2026)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/etn-20251231.htm" target="_blank">https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/etn-20251231.htm (CIK: 0001551171)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>링크 클릭 시 공시로 바로 이동.</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "Eaton Corporation plc (Eaton or the Company) is an intelligent power management company dedicated to protecting the environment and improving the quality of life for people everywhere. We make products for the data center, utility, industrial, commercial, machine building, residential, aerospace and mobility markets."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>8.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>Item 1. Business</code> 내 데이터센터 전용 UPS 단독 매출액<br>
+        <b>미발견 기록:</b> Electrical 부문 내에 대형 데이터센터 전력 솔루션과 일반 상업용 배전 장비가 합산 공시됨. (전체 전력 비중 72%로 직접사업 조건 충족)
+    </div>
+
+    <h3>8.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>BNP Paribas Wealth Management Equity Research, BNP Paribas Equity Research Report (Eaton Corporation Target Price & Power Management)</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>https://wealthmanagement.bnpparibas/content/dam/wmpublicsite/international/legal-compliance/stakes-listing-automated-process/RAD052_BNP_EN.pdf</code></td></tr>
+        <tr><td class="label-col">보조 분석 내용</td><td>변압기, 스위치기어 및 AI 데이터센터 초대형 UPS 등 Electrical Americas/Global 부문 성과 및 Valuation 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 전력 송배전, 변압기, 스위치기어 및 데이터센터 전력 관리 장비가 전사 매출의 72%를 상회하므로 대표 '직접사업'으로 지정함.
+    </div>
+
+
+    <h2>9. Amphenol Corporation (NYSE: APH) 세부 감사 추적 보고서</h2>
+    
+    <h3>9.1 기본정보 및 최종 판정</h3>
+    <table>
+        <tr><td class="label-col">검토 대상 테마</td><td>에너지·전력 인프라 (대표) / AI (교차)</td><td class="label-col">최종 정성/정량 등급</td><td><span class="badge badge-support">핵심지원</span> (점수 0.7)</td></tr>
+        <tr><td class="label-col">판정 트랙 및 신뢰도</td><td><b>B트랙</b> (정성 판정) / <b>신뢰도 중</b></td><td class="label-col">발동 예외 규칙</td><td><span class="badge badge-exception">E3</span> (복수 테마 해당: AI vs 전력망 엔드마켓 분산)</td></tr>
+    </table>
+
+    <h3>9.2 원문 직접근거 (Primary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">공시 문서명</td><td>SEC EDGAR Form 10-K (2025 Annual Report, Filed Feb 2026)</td></tr>
+        <tr><td class="label-col">원문 URL</td><td><a href="https://www.sec.gov/Archives/edgar/data/820313/000110465926013549/aph-20251231x10k.htm" target="_blank">https://www.sec.gov/Archives/edgar/data/820313/000110465926013549/aph-20251231x10k.htm (CIK: 0000820313)</a></td></tr>
+        <tr><td class="label-col">원문 세부 위치</td><td><code>링크 클릭 시 공시로 바로 이동.</code></td></tr>
+        <tr><td class="label-col">원문 발췌 내용</td><td>
+            <div class="quote-box">
+                "The Company estimates, based on recent reports of industry analysts, that worldwide sales of interconnect, value-add cable assembly, antenna, cable and sensor-related products were approximately $500 billion in 2025."
+            </div>
+        </td></tr>
+        <tr><td class="label-col">자료 확인일자</td><td>2026-07-20</td></tr>
+    </table>
+
+    <h3>9.3 미발견 및 한계 사항 (Unfound Scope)</h3>
+    <div class="unfound-box">
+        <b>확인 범위:</b> <code>IT Datacom</code> 및 <code>Industrial</code> 세그먼트 내부<br>
+        <b>미발견 기록:</b> IT Datacom(27%) 중 'AI GPU 서버용'과 '범용 서버용' 미분류. Industrial(25%) 중 '전력망용'과 '일반 공장용' 비율 미공시.
+    </div>
+
+    <h3>9.4 후속 보조근거 (Secondary Evidence)</h3>
+    <table>
+        <tr><td class="label-col">자료원 / 리포트명</td><td>미래에셋증권 리서치센터 (Mirae Asset Securities Research), 암페놀(Amphenol) - IT 데이터통신 및 전력/산업용 인터커넥트 분석</td></tr>
+        <tr><td class="label-col">검색어 및 경로</td><td>SEC EDGAR > <code>https://securities.miraeasset.com/bbs/download/2142156.pdf?attachmentId=2142156</code></td></tr>
+        <tr><td class="label-col">AI 데이터센터용 초고속 커넥터(IT Datacom) 및 전력망/유틸리티용 고전압 커넥터(Industrial) 매출 비중 분석.</td></tr>
+    </table>
+
+    <div class="memo-box">
+        <strong>판단 메모:</strong> 예외 <b>E3(복수 테마 해당)</b> 적용 종목임. IT Datacom(AI) 및 Industrial/Power(전력) 부문 매출이 분산되어 있으나, 대표 테마를 '에너지·전력 인프라'로 배정하고 '핵심지원'으로 부여함.
+    </div>
+
+</div>
+
+</body>
+</html>
