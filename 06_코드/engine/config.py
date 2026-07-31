@@ -9,6 +9,12 @@ ADTV90_OFFICIAL_METHOD = "ZERO"          # D-07 기본안: 정지일 0 반영 (E
 ADTV90_OPEN_DAYS_TARGET = 90             # 관측창: 최근 90개 시장 개장일
 SEASONING_MIN_OBS_DAYS = 90              # 상장 후 유효관측일수 (D-06)
 LIQUIDITY_THRESHOLD_PERCENTILE = 10      # 잠정 하한 = 시장별 분포 P10 (분포 산출 후 고정·기록)
+DISTRIBUTION_PERCENTILES = (5, 10, 25, 50, 75)  # 룰북 8.1·D-12 ⑥: 분포 확인용 백분위
+PERCENTILE_METHOD = "linear"             # U-2: 현행 엔진·QA와 일치하는 선형보간
+PERCENTILE_SCALE = 100.0
+PERCENT_CHANGE_BASE = 1.0
+DISTRIBUTION_FIRST_POSITION = 0
+DISTRIBUTION_SECOND_POSITION = 1
 COMPOSITION_METHOD = "A_ALL_ELIGIBLE"    # 파일럿: 대안 A 전부 편입, 상한 없음
 CAP_SCENARIO = "NO_CAP"
 CELL_TARGET_WEIGHT = 1.0 / 6.0           # 테마 1:1:1 × 지역 50:50 (D-10 확정)

@@ -12,3 +12,11 @@
 
 - engine의 `config`·모듈을 재사용해도 되지만(독립성 요구 없음), 성과 결과로 규칙을 바꾸지 않는다(R3).
 - 산출물은 `../data/` 하위에 저장하고 `rule_version`을 함께 기록한다.
+
+## 완료 산출물
+
+| 산출물 | 스크립트 | 출력 |
+|---|---|---|
+| ADTV90·당좌비율 시장별 분포표 | `build_indicator_distributions.py` | `../data/analysis/indicator_distributions/` |
+
+당좌비율은 입력 원장 `../data/input_data/quick_ratio_ledger.csv` 미확보 상태이므로 임의값 없이 `CALCULATION_HOLD`로 기록한다.

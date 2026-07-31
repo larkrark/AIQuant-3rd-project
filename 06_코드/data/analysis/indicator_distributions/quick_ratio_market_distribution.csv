@@ -1,0 +1,5 @@
+﻿selection_date,market,rule_version,distribution_source,metric,quick_ratio_use,percentile_method,quick_ratio_status,n_calculated,P5,P10,P25,P50,P75,hold_reason,approval_status
+2026-03-31,KR,v0.9-pilot,06_코드\data\input_data\quick_ratio_ledger.csv,quick_ratio_raw,DIAGNOSTIC_ONLY,linear,CALCULATION_HOLD,,,,,,,INPUT_LEDGER_NOT_FOUND,DATA_PENDING
+2026-03-31,US,v0.9-pilot,06_코드\data\input_data\quick_ratio_ledger.csv,quick_ratio_raw,DIAGNOSTIC_ONLY,linear,CALCULATION_HOLD,,,,,,,INPUT_LEDGER_NOT_FOUND,DATA_PENDING
+2026-06-30,KR,v0.9-pilot,06_코드\data\input_data\quick_ratio_ledger.csv,quick_ratio_raw,DIAGNOSTIC_ONLY,linear,CALCULATION_HOLD,,,,,,,INPUT_LEDGER_NOT_FOUND,DATA_PENDING
+2026-06-30,US,v0.9-pilot,06_코드\data\input_data\quick_ratio_ledger.csv,quick_ratio_raw,DIAGNOSTIC_ONLY,linear,CALCULATION_HOLD,,,,,,,INPUT_LEDGER_NOT_FOUND,DATA_PENDING
