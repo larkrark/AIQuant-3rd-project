@@ -41,21 +41,34 @@ SEAL_RAW = os.path.join(HERE, "out", "dart_filings_raw.csv")
 REQUIRED = {
     "security_id":                   ["security_id", "종목코드", "stock_code"],
     "corporate_action_type":         ["corporate_action_type", "action_type", "event_type"],
-    "effective_date_raw":            ["effective_date_raw", "effective_date", "효력일"],
+    "effective_date_raw":            ["effective_date_raw", "effective_date",
+                                      "event_effective_date", "효력일"],
     "listing_or_resume_date_raw":    ["listing_or_resume_date_raw", "listing_date_raw",
-                                      "resume_date", "상장일", "거래재개일"],
-    "rcept_no":                      ["rcept_no", "접수번호", "document_key"],
+                                      "listing_or_resume_date", "resume_date",
+                                      "상장일", "거래재개일"],
+    "rcept_no":                      ["rcept_no", "latest_event_rcept_no",
+                                      "latest_primary_rcept_no", "original_rcept_no",
+                                      "접수번호", "document_key"],
 }
 OPTIONAL = {
-    "par_value_before_raw":          ["par_value_before_raw", "액면가_전"],
-    "par_value_after_raw":           ["par_value_after_raw", "액면가_후"],
-    "shares_before_raw":             ["shares_before_raw", "주식수_전"],
-    "shares_after_raw":              ["shares_after_raw", "주식수_후"],
-    "reviewed_split_ratio_candidate": ["reviewed_split_ratio_candidate", "split_ratio_candidate"],
-    "candidate_review_basis":        ["candidate_review_basis", "근거"],
+    "par_value_before_raw":          ["par_value_before_raw", "before_face_value", "액면가_전"],
+    "par_value_after_raw":           ["par_value_after_raw", "after_face_value", "액면가_후"],
+    "shares_before_raw":             ["shares_before_raw", "before_shares", "주식수_전"],
+    "shares_after_raw":              ["shares_after_raw", "after_shares", "주식수_후"],
+    "reviewed_split_ratio_candidate": ["reviewed_split_ratio_candidate",
+                                       "split_ratio_candidate", "split_or_merger_ratio"],
+    "candidate_review_basis":        ["candidate_review_basis", "source_value_raw", "근거"],
     "approved_adjustment_factor":    ["approved_adjustment_factor"],
+    "adjustment_factor_candidate":   ["adjustment_factor_candidate"],
     "methodology_decision_id":       ["methodology_decision_id"],
+    # 수집 범위 — PIT cutoff 가 파일럿 구간을 덮는지 검사하기 위해 읽는다.
+    "query_end_date":                ["query_end_date", "collection_cutoff"],
+    "pit_status":                    ["pit_status"],
 }
+
+# 파일럿에서 실제로 쓰인 구간. 원장 조회 종료일이 이보다 이르면 사각이 생긴다.
+PILOT_INDEX_END = "2026-06-30"
+DATA_CUTOFF_0630 = "2026-06-23"
 
 # 기존 반영분 — corrected_run_meta.json 기준. 원장이 이것과 다르면 지수 재산출 대상.
 BASELINE_010120 = {
@@ -177,6 +190,25 @@ def main():
         note("INFO", "MATCH",
              f"원장만 포착 → QA 필터 한계 유형(SEAL §4): {g(r,'security_id')} {n}")
 
+    # --- 3-b. 수집 범위 ---
+    print("\n3-b. 수집 범위 — 조회 종료일이 파일럿 구간을 덮는가")
+    ends = {g(r, "query_end_date") for r in led if g(r, "query_end_date")}
+    pits = {g(r, "pit_status") for r in led if g(r, "pit_status")}
+    if ends:
+        e = max(ends)
+        norm = e if "-" in e else f"{e[:4]}-{e[4:6]}-{e[6:]}"
+        note("INFO", "SCOPE", f"원장 조회 종료일 {norm} · pit_status {sorted(pits)}")
+        if norm < PILOT_INDEX_END:
+            note("FAIL", "SCOPE",
+                 f"조회 종료 {norm} < 파일럿 지수구간 종료 {PILOT_INDEX_END} — "
+                 f"{norm} 이후 기업행사가 원장에 들어올 수 없다")
+        if norm < DATA_CUTOFF_0630:
+            note("FAIL", "SCOPE",
+                 f"조회 종료 {norm} < 06-30 회차 자료마감일 {DATA_CUTOFF_0630} — "
+                 "선정 근거 구간도 덮지 못한다")
+    else:
+        note("WARN", "SCOPE", "query_end_date 없음 — 수집 범위를 검사할 수 없다")
+
     # --- 4. 미포착 ---
     print("\n4. 미포착 — 봉인 전량에서 재검색")
     sus = [x for x in raw
@@ -195,7 +227,10 @@ def main():
 
     # --- 5. 010120 회귀 ---
     print("\n5. 회귀 — 010120 기존 반영값")
-    rows = [r for r in led if g(r, "security_id") in ("010120", "10120")]
+    # 010120 은 물적분할(2022)도 원장에 있다. 회귀 대상은 파일럿에 반영된 액면분할뿐이다.
+    rows = [r for r in led if g(r, "security_id") in ("010120", "10120")
+            and "SPLIT" in g(r, "corporate_action_type").upper()
+            and "SPIN" not in g(r, "corporate_action_type").upper()]
     if not rows:
         note("FAIL", "REGRESS", "010120 이 원장에 없다 — 이미 지수에 반영된 사건이다")
     else:
@@ -205,9 +240,27 @@ def main():
                 note("FAIL", "REGRESS",
                      f"010120 상장·재개일 {ld} ≠ 기존 반영 {BASELINE_010120['listing_or_resume']} "
                      "→ 지수 재산출 대상 (효력일 채택 시 연변동성 42.40% ↔ 71.77%)")
-            ratio = g(r, "reviewed_split_ratio_candidate") or g(r, "approved_adjustment_factor")
-            if ratio and ratio.rstrip("0").rstrip(".") not in ("5", "5:1"):
-                note("FAIL", "REGRESS", f"010120 분할비율 {ratio} ≠ 기존 반영 5:1")
+            # 비율(5)과 계수(0.2)는 표기 규약이 다르다. 둘 다 5:1 을 뜻하면 통과시키되
+            # 어느 규약으로 적혔는지 남긴다.
+            raw = [g(r, k) for k in ("reviewed_split_ratio_candidate",
+                                     "adjustment_factor_candidate",
+                                     "approved_adjustment_factor") if g(r, k)]
+            okr = False
+            for v in raw:
+                s = v.replace(" ", "")
+                if ("5" in s and "1" in s) or s.rstrip("0").rstrip(".") == "5":
+                    okr = True
+                    note("INFO", "REGRESS", f"010120 비율 표기 '{v}' → 5:1 로 해석")
+                try:
+                    if abs(float(s) - 0.2) < 1e-9:
+                        okr = True
+                        note("WARN", "REGRESS",
+                             f"010120 값 {v} 는 비율(5)이 아니라 계수(1/5)다 — "
+                             "데이터사전 §4 는 ratio 칸과 factor 칸을 나눈다. 표기 규약 확정 필요")
+                except ValueError:
+                    pass
+            if raw and not okr:
+                note("FAIL", "REGRESS", f"010120 분할비율 {raw} ≠ 기존 반영 5:1")
         if not [f for f in findings if f[1] == "REGRESS"]:
             note("OK", "REGRESS", "010120 기존 반영값과 일치 — 재산출 불필요")
 
