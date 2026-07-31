@@ -1,0 +1,6 @@
+﻿required_column,status,expected_path
+security_id,MISSING_INPUT_LEDGER,06_코드\data\input_data\quick_ratio_ledger.csv
+market,MISSING_INPUT_LEDGER,06_코드\data\input_data\quick_ratio_ledger.csv
+selection_date,MISSING_INPUT_LEDGER,06_코드\data\input_data\quick_ratio_ledger.csv
+quick_ratio_raw,MISSING_INPUT_LEDGER,06_코드\data\input_data\quick_ratio_ledger.csv
+quick_ratio_status,MISSING_INPUT_LEDGER,06_코드\data\input_data\quick_ratio_ledger.csv

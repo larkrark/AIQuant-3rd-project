@@ -1,0 +1,19 @@
+{
+  "rule_version": "v0.9-pilot",
+  "percentile_method": "linear",
+  "distribution_percentiles": [
+    5,
+    10,
+    25,
+    50,
+    75
+  ],
+  "adtv90_source": "06_코드\\data\\pilot_run\\output_f1\\adtv90_ledger.csv",
+  "quick_ratio_source": "06_코드\\data\\input_data\\quick_ratio_ledger.csv",
+  "outputs": [
+    "adtv90_market_distribution.csv",
+    "adtv90_security_threshold_diagnostics.csv",
+    "quick_ratio_market_distribution.csv",
+    "quick_ratio_input_status.csv"
+  ]
+}
