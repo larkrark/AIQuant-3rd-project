@@ -1,0 +1,83 @@
+{
+  "artifact": "qa_relink_mechanism_test",
+  "status": "MECHANISM_TEST_ONLY",
+  "citation": "성과 인용 금지 — 교체일은 가정이며 실제 적용 이벤트가 아니다",
+  "why": "파일럿 구간에 리밸런싱 적용 0회. 구간 확장은 bm_us.csv 가 2026-06-30 에서 끝나 06-30 이후 공통 개장일이 0일이므로 불가",
+  "real_inputs": [
+    "prices(daily_market_state)",
+    "fx",
+    "calendar",
+    "bm_kr",
+    "bm_us"
+  ],
+  "assumed": [
+    "리밸런싱 적용일"
+  ],
+  "swap": {
+    "added": [
+      "ATI"
+    ],
+    "removed": [
+      "KTOS"
+    ]
+  },
+  "tolerance_rtol": 1e-12,
+  "continuity_max_rel_err": 1.0192385188440384e-15,
+  "method_gap_max_rel": 2.338048665740924e-15,
+  "verdict_continuity": "CONTINUOUS",
+  "verdict_methods": "EQUIVALENT",
+  "no_rebalance_final": 1337.749126999218,
+  "cases": [
+    {
+      "boundary": "2026-04-13",
+      "level_before": 1115.4095495777876,
+      "level_after": 1115.4095495777865,
+      "continuity_rel_err": 1.0192385188440384e-15,
+      "method_gap_rel": 2.225732890471414e-15,
+      "final_chain": 1398.116181731324,
+      "final_divisor": 1398.1161817313268,
+      "vs_no_rebalance_pp": 6.0367054732106
+    },
+    {
+      "boundary": "2026-05-04",
+      "level_before": 1236.929482674342,
+      "level_after": 1236.9294826743408,
+      "continuity_rel_err": 9.191052466128939e-16,
+      "method_gap_rel": 2.082635092875162e-15,
+      "final_chain": 1406.8636938657219,
+      "final_divisor": 1406.8636938657241,
+      "vs_no_rebalance_pp": 6.911456686650376
+    },
+    {
+      "boundary": "2026-05-15",
+      "level_before": 1208.7177446138712,
+      "level_after": 1208.71774461387,
+      "continuity_rel_err": 9.405573652592786e-16,
+      "method_gap_rel": 2.1282312799358854e-15,
+      "final_chain": 1365.3172776924293,
+      "final_divisor": 1365.317277692432,
+      "vs_no_rebalance_pp": 2.756815069321124
+    },
+    {
+      "boundary": "2026-06-01",
+      "level_before": 1441.5987017608647,
+      "level_after": 1441.5987017608634,
+      "continuity_rel_err": 9.463396789918138e-16,
+      "method_gap_rel": 2.338048665740924e-15,
+      "final_chain": 1432.2074923036873,
+      "final_divisor": 1432.2074923036903,
+      "vs_no_rebalance_pp": 9.445836530446924
+    },
+    {
+      "boundary": "2026-06-15",
+      "level_before": 1386.482480117675,
+      "level_after": 1386.4824801176737,
+      "continuity_rel_err": 9.83959099536263e-16,
+      "method_gap_rel": 2.12715952726465e-15,
+      "final_chain": 1340.510805391987,
+      "final_divisor": 1340.5108053919898,
+      "vs_no_rebalance_pp": 0.2761678392768999
+    }
+  ],
+  "limitation": "본 시험은 목표비중 재설정형 리밸런싱에서 두 연결 방식이 수학적으로 같아짐을 보인다. 주식수 변동(증자·분할)이 리밸런싱과 겹치는 경우는 다루지 않았다"
+}
