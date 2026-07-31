@@ -1,0 +1,16 @@
+{
+  "build_date": "2026-07-31",
+  "package_status": "STRUCTURALLY_COMPLETE_MASTER",
+  "approval_boundary": "TEAM_LEGAL_LICENSE_APPROVAL_PENDING",
+  "master_docx_count": 3,
+  "markdown_mirror_count": 3,
+  "rendered_page_counts": {
+    "rulebook": 10,
+    "data_dictionary": 26,
+    "formula_appendix": 10
+  },
+  "data_dictionary_field_count": 380,
+  "visual_qa": "PASS_ALL_PAGES_INSPECTED",
+  "docx_crc": "PASS_ALL",
+  "comments_or_tracked_changes": "NONE"
+}

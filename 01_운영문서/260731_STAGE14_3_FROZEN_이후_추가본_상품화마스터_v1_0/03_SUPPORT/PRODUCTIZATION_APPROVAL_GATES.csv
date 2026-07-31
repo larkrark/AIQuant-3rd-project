@@ -1,0 +1,16 @@
+﻿gate_id,gate,current_status,owner_role,required_by
+GOV-001,지수관리자·계산에이전트·법률·라이선스·운영책임 공식 지정,OPEN,COMMITTEE/LEGAL,상품 운영 전
+UNI-001,KR·US 전체시장 과거 유니버스 공식 재구성,OPEN,DATA,production 검증 전
+THEME-001,Seed18 54개 잠재 테마행 사람검토·팀 승인,OPEN,DATA/COMMITTEE,파일럿 종결 전
+CA-KR-001,KR9 2026-05-16~06-30 증분조회와 KRX·KIND 시장조치 보강,OPEN,DATA,독립 QA 인계 전
+CA-US-001,US9 전체기간 SEC·주상장거래소 기업행사 전수조회,OPEN,DATA,독립 QA 인계 전
+LIQ-001,product 고정 절대 ADTV90 하한 승인,CONFIG_REQUIRED,COMMITTEE,상품규칙 동결 전
+WEIGHT-001,product 종목상한·셀 최소/최대수·그룹/산업상한 승인,CONFIG_REQUIRED,COMMITTEE,상품규칙 동결 전
+CAL-001,정식 분기달력·마감시각·조기폐장·휴장충돌 규칙 승인,CONFIG_REQUIRED,COMMITTEE/OPERATIONS,운영 개시 전
+FX-001,환율 결측·휴장·적용시각 규칙 승인,CONFIG_REQUIRED,COMMITTEE/DATA,production 계산 전
+BM-001,미국 BM 원계열·상업 라이선스·재배포권 확인,OPEN,LICENSE/DATA,게시 전
+LEGAL-001,지수명·공개방법론·면책·판매구조 법률검토,NOT_PERFORMED,LEGAL,상품 출시 전
+OPS-001,게시시간·SLA·장애·정정·대체계산 운영규정,NOT_DEFINED,OPERATIONS,운영 개시 전
+BCP-001,재해복구·대체산출·복구훈련,NOT_TESTED,OPERATIONS,운영 개시 전
+QA-001,production 전체기간 독립 재산출·회귀 QA,NOT_PERFORMED,QA,production 승격 전
+PROM-001,production 승격과 성과동결,NOT_PROMOTED,COMMITTEE,모든 필수게이트 완료 후
