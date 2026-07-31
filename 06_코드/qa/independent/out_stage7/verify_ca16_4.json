@@ -1,0 +1,72 @@
+{
+  "checks": {
+    "base_reproduction": {
+      "max_rel_err": 1.056082388086356e-15,
+      "pass": true
+    },
+    "corrected_match": {
+      "qa_index_last": 1337.749126999218,
+      "engine_index_last": 1337.749126999219,
+      "max_rel_err": 1.056082388086356e-15,
+      "pass": true,
+      "excess_pp": -8.003589978710867,
+      "split_effect_pp": 6.661069129582977
+    },
+    "invariants": {
+      "files_identical": {
+        "adtv90_ledger.csv": true,
+        "cell_shortage.csv": true,
+        "constituents_2026-03-31.csv": true,
+        "constituents_2026-06-30.csv": true,
+        "thresholds_2026-03-31.json": true,
+        "thresholds_2026-06-30.json": true,
+        "weights_2026-03-31.csv": true,
+        "weights_2026-06-30.csv": true
+      },
+      "bm_max_rel": 0.0,
+      "state_common_cols": 13,
+      "state_diff_rows": 0,
+      "state_added_cols": [
+        "adj_close"
+      ],
+      "pass": true
+    },
+    "adjustment_scope": {
+      "others_max": 0.0,
+      "pre_max": 0.0,
+      "post_max": 0.0,
+      "pre_rows": 126,
+      "post_rows": 54,
+      "pass": true
+    },
+    "path_metrics": {
+      "decided_04_13": {
+        "index_last": 1337.749126999218,
+        "ann_vol_pct": 42.39653668754484,
+        "max_drawdown_pct": -15.394362530000016,
+        "tracking_err_pct": 32.96022737002894
+      },
+      "alt_04_10": {
+        "index_last": 1337.749126999218,
+        "ann_vol_pct": 71.77477648281887,
+        "max_drawdown_pct": -15.394362530000016
+      },
+      "note": "최종 레벨이 같아도 변동성이 갈린다. 경계일은 위험지표를 바꾼다."
+    }
+  },
+  "artifact": "qa_verify_ca16_4",
+  "target": "output_ca16_4",
+  "baseline": "output_f1",
+  "engine_import": false,
+  "weights_source": "qa/independent/out (엔진 산출물 아님)",
+  "tolerance_rtol": 1e-12,
+  "verdict": "PASS",
+  "citation_rule": "as-run 과 병기한다. 보정본 단독 인용 금지.",
+  "performance_status": "PERFORMANCE_NOT_FROZEN",
+  "not_frozen_reason": [
+    "BM 원계열 출처 미확정 — 값은 KRX 1028 과 동일하나 수집 경로 증빙 대기",
+    "기업행사 원장 미수신 — 010120 외 사건 유무 미확정",
+    "ADTV90 분모의 거래정지일 처리 미의결",
+    "리밸런싱 적용 이벤트 0회 — 연결 방식 정확성 NOT_EXERCISED"
+  ]
+}
