@@ -1,0 +1,13 @@
+﻿stage=STAGE_5D_B4B_PAIRING_SOURCE_RECOVERY
+run_timestamp=2026-08-01T14:22:42+09:00
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4b_pairing_source_recovery_20260801_142241
+disk_pairing_files=9
+top_level_zip_files_scanned=20
+outer_zip_open_errors=0
+pairing_source_locations=17
+unique_pairing_hashes=8
+mapped_company_count=8
+unmapped_source_count=0
+parse_error_count=0
+known_status_records=188
+stage5db4b_discovery_pass=True

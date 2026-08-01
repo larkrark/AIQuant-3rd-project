@@ -1,0 +1,2 @@
+﻿"security_id","company_name","original_pdf_count","original_xbrl_zip_count","known_pdf_xbrl_pair_count","validated_paired_count","standardized_pdf_xbrl_pair_count","standardized_pdf_only_count","standardized_review_count","pdf_status_coverage_count","pdf_coverage_difference","unpaired_xbrl_zip_count","pdf_coverage_pass","xbrl_overmatch","reconciliation_status"
+"298040","효성중공업","24","24","0","0","0","24","0","24","0","24","True","False","PDF_RECONCILED_XBRL_UNPAIRED_REVIEW"

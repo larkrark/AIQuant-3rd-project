@@ -1,0 +1,16 @@
+﻿stage=STAGE_5D_B2_XBRL_NESTED_ZIP_AUDIT
+run_timestamp=2026-08-01T14:03:47+09:00
+source_b1_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b1_regular_report_package_audit_20260801_135933
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b2_xbrl_nested_zip_audit_20260801_140334
+company_package_rows=9
+xbrl_named_nested_zip_rows=191
+nested_zip_summary_rows=191
+outer_entry_unique_count=191
+nested_zip_open_passes=191
+nested_zip_errors=0
+inner_member_rows=1430
+inner_hash_passes=1430
+inner_member_errors=0
+empty_nested_zips=0
+structure_review_count=93
+stage5db2_technical_pass=True

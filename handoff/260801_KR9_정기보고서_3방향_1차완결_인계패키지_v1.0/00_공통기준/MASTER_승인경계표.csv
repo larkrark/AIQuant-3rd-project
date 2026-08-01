@@ -1,0 +1,6 @@
+﻿"구분","상태","내부상태코드","비고"
+"제작자 담당범위","완료","FIRST_PARTY_COMPLETE","수집·정리·추적·기술검증·인계 준비 완료"
+"산출물 상태","1차 완결","READY_FOR_INDEPENDENT_QA","수신자가 즉시 독립 QA 착수 가능"
+"독립 QA","미착수","NOT_STARTED","김민호님 후속 단계"
+"팀 승인","대기","PENDING","기술 PASS와 별개"
+"엔진 승격","차단","BLOCKED_UNTIL_APPROVAL","승인된 값만 승격"

@@ -1,0 +1,2 @@
+﻿"security_id","company_name","pairing_row_count","original_pdf_only_rows","recorded_pdf_reference_rows","pdf_exact_match_rows","recorded_xbrl_reference_rows","xbrl_exact_match_rows","current_archive_xbrl_zip_count","original_collection_availability","current_archive_xbrl_presence","direct_pairing_record","retrospective_pairing","technical_status"
+"298040","효성중공업","24","24","24","24","0","0","24","PDF_ONLY","PRESENT","NOT_RECORDED","NOT_PERFORMED","TECHNICAL_PASS_ORIGINAL_PDF_ONLY_CONFIRMED"

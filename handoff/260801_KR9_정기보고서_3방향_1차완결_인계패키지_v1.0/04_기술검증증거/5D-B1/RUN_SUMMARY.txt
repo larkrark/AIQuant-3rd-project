@@ -1,0 +1,16 @@
+﻿stage=STAGE_5D_B1_REGULAR_REPORT_PACKAGE_AUDIT
+run_timestamp=2026-08-01T13:59:34+09:00
+outputs_root=C:\Soph\projects\custom_index\index_lab\report_disclosure_materials\outputs
+company_package_contracts=9
+company_packages_found=9
+company_zip_open_passes=9
+missing_company_packages=0
+multiple_package_matches=0
+raw_file_entries=407
+pdf_entries=204
+excel_entries=12
+nested_zip_entries=191
+xbrl_named_zip_entries=191
+aggregate_review_package_count=1
+stage5db1_pass=True
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b1_regular_report_package_audit_20260801_135933

@@ -1,0 +1,12 @@
+﻿stage=STAGE_5D_B4D1_HYUNDAI_ROTEM_PILOT_DISCOVERY
+run_timestamp=2026-08-01T15:22:16+09:00
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4c5c_and_b4d1_20260801_152026\02_HYUNDAI_ROTEM_PILOT_DISCOVERY
+package_path=C:\Soph\projects\custom_index\index_lab\report_disclosure_materials\outputs\soph_handoff_hyundai_rotem_v1.zip
+package_sha256=EC0974326CBDCBD06B36919ABDAC05F9395D0DB7443278C35E39422A3CF158EB
+candidate_count=66
+high_priority_count=11
+medium_priority_count=6
+csv_parse_errors=0
+workbook_read_errors=0
+discovery_status=DISCOVERY_PASS_HIGH_PRIORITY_CANDIDATE_FOUND
+stage5db4d1_pass=True

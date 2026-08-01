@@ -1,0 +1,14 @@
+﻿stage=STAGE_5D_B4C_PAIRING_DEDUP_STATUS_VOCAB
+run_timestamp=2026-08-01T14:27:41+09:00
+source_b4b_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4b_pairing_source_recovery_20260801_142241
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4c_pairing_dedup_status_vocab_20260801_142741
+source_location_rows=17
+canonical_pairing_hashes=8
+mapped_company_count=8
+canonical_hash_passes=8
+parse_error_count=0
+raw_known_status_records=188
+deduplicated_known_status_records=94
+status_like_value_rows=64
+unknown_status_value_rows=59
+stage5db4c_technical_pass=True

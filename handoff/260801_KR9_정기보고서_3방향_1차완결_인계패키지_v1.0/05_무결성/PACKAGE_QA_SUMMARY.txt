@@ -1,0 +1,14 @@
+﻿패키지=260801_KR9_정기보고서_3방향_1차완결_인계패키지_v1.0
+검사시각=2026-08-01T21:16:59+09:00
+패키지파일수=74
+필수파일누락수=0
+빈파일수=0
+원자료혼입수=0
+ZIP엔트리수=78
+ZIP_CRC오류수=0
+최종통과=True
+최종상태=FIRST_PARTY_COMPLETE_READY_FOR_INDEPENDENT_QA
+독립QA상태=NOT_STARTED
+팀승인상태=PENDING
+엔진승격상태=BLOCKED_UNTIL_APPROVAL
+ZIP경로=C:\Soph\handoff_staging\KR9\regular_report_first_party_complete\02_조립본_20260801_171426\260801_KR9_정기보고서_3방향_1차완결_인계패키지_v1.0.zip

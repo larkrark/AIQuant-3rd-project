@@ -1,0 +1,5 @@
+﻿"security_id","company_name","row_count","all_columns","pdf_reference_columns","xbrl_reference_columns","pair_status_columns","pdf_column_count","xbrl_column_count","status_column_count"
+"010120","LS일렉트릭","22","report_type_kr | filing_date | fiscal_period_inferred | is_revision | pdf_file_name | pdf_sha256 | xbrl_zip_file_name | xbrl_zip_sha256 | pair_status","pdf_file_name","xbrl_zip_file_name","pair_status","1","1","1"
+"012450","한화에어로스페이스","19","report_type | filing_date | corrected_disclosure | pdf_file | xbrl_zip_file | pair_status","pdf_file","xbrl_zip_file","pair_status","1","1","1"
+"018260","삼성SDS","23","report_type_kr | filing_date | fiscal_period_inferred | is_revision | pdf_file_name | pdf_sha256 | xbrl_zip_file_name | xbrl_zip_sha256 | pair_status","pdf_file_name","xbrl_zip_file_name","pair_status","1","1","1"
+"267260","HD현대일렉트릭","24","report_type_kr | filing_date | is_revision | pdf_file_name | pdf_sha256 | xbrl_zip_file_name | xbrl_zip_sha256 | pair_status","pdf_file_name","xbrl_zip_file_name","pair_status","1","1","1"

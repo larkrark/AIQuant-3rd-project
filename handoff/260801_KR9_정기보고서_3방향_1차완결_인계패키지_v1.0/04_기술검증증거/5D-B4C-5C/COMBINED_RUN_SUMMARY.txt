@@ -1,0 +1,13 @@
+﻿combined_run=HYOSUNG_PDF_ONLY_LINEAGE_THEN_ROTEM_DISCOVERY
+run_timestamp=2026-08-01T15:22:16+09:00
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4c5c_and_b4d1_20260801_152026
+hyosung_status=TECHNICAL_PASS_ORIGINAL_PDF_ONLY_CONFIRMED
+hyosung_lineage_pass=True
+hyosung_original_pdf_only_rows=24
+hyosung_recorded_xbrl_reference_rows=0
+hyosung_current_xbrl_archive_count=24
+rotem_status=DISCOVERY_PASS_HIGH_PRIORITY_CANDIDATE_FOUND
+rotem_candidate_count=66
+rotem_high_priority_count=11
+rotem_medium_priority_count=6
+combined_status=PASS_WITH_OPEN_ROTEM_EXTRACTION

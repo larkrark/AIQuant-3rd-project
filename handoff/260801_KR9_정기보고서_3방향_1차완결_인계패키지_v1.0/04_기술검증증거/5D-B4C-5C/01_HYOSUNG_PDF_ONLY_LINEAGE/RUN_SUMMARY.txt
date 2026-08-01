@@ -1,0 +1,17 @@
+﻿stage=STAGE_5D_B4C5C_HYOSUNG_PDF_ONLY_LINEAGE
+run_timestamp=2026-08-01T15:20:26+09:00
+source_5b_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4c5b_and_b4d1_20260801_150850
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4c5c_and_b4d1_20260801_152026\01_HYOSUNG_PDF_ONLY_LINEAGE
+pairing_row_count=24
+original_pdf_only_rows=24
+recorded_pdf_reference_rows=24
+pdf_exact_match_rows=24
+recorded_xbrl_reference_rows=0
+xbrl_exact_match_rows=0
+current_archive_xbrl_zip_count=24
+original_collection_availability=PDF_ONLY
+current_archive_xbrl_presence=PRESENT
+direct_pairing_record=NOT_RECORDED
+retrospective_pairing=NOT_PERFORMED
+stage_status=TECHNICAL_PASS_ORIGINAL_PDF_ONLY_CONFIRMED
+stage5db4c5c_pass=True

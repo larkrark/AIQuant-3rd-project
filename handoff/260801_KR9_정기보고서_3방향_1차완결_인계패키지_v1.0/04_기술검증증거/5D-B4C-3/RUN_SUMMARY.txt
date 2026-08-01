@@ -1,0 +1,14 @@
+﻿stage=STAGE_5D_B4C3_PAIRED_FILE_REFERENCE_AUDIT
+run_timestamp=2026-08-01T14:40:34+09:00
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b4c3_paired_file_reference_audit_20260801_144033
+source_schema_rows=4
+schema_pass_count=4
+total_rows=88
+paired_rows=88
+rows_with_pdf_reference=88
+rows_with_xbrl_reference=88
+pdf_reference_match_rows=88
+xbrl_reference_match_rows=88
+pdf_xbrl_pair_candidate_rows=88
+review_rows=0
+stage5db4c3_technical_pass=True

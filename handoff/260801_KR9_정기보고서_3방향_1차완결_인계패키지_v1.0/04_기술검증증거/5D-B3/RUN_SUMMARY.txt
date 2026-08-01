@@ -1,0 +1,14 @@
+﻿stage=STAGE_5D_B3_XBRL_CONTENT_ROLE_AUDIT
+run_timestamp=2026-08-01T14:08:19+09:00
+source_b1_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b1_regular_report_package_audit_20260801_135933
+source_b2_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b2_xbrl_nested_zip_audit_20260801_140334
+output_directory=C:\Soph\handoff_staging\KR9\v1.1\diagnostics\stage5d_b3_xbrl_content_role_audit_20260801_140754
+review_nested_zip_rows=93
+zip_result_rows=93
+unique_outer_entries=93
+nested_open_passes=93
+xml_files_read=558
+xml_read_errors=0
+instance_schema_confirmed=93
+still_review_required=0
+stage5db3_content_audit_pass=True
