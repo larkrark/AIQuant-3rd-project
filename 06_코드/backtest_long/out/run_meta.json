@@ -1,0 +1,9 @@
+{
+  "rule_version": "v0.9-pilot",
+  "valuation_price_source": "ADJ_CLOSE",
+  "valuation_note": "",
+  "adtv90_observation_end": "data_cutoff_date",
+  "index_linking_method": "SEGMENT_RELINK",
+  "fx_application": "SAME_DAY_ECOS",
+  "calc_days": "COMMON_OPEN_ONLY"
+}

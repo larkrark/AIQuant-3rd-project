@@ -34,6 +34,14 @@ REGIONS = ["KR", "US"]
 SELECTION_DATES = ["2026-03-31", "2026-06-30"]   # 대표 검토일 후보 연동 (팀 확인 대기)
 CUTOFF_LAG_TRADING_DAYS = 5                       # data_cutoff_date = 선정일 - 5거래일 (잠정)
 
+# 장기 백테스트용 선정일 확장 — 환경변수로만 덮어쓴다(기본 동작 불변).
+#   SELECTION_DATES_OVERRIDE="2015-03-31,2015-06-30,..." 형태
+# 선정 주기·규칙은 바꾸지 않는다. 같은 규칙을 더 많은 회차에 적용할 뿐이다.
+import os as _os
+_sel = _os.environ.get("SELECTION_DATES_OVERRIDE", "").strip()
+if _sel:
+    SELECTION_DATES = [d.strip() for d in _sel.split(",") if d.strip()]
+
 # 거래대금 (제59조 복원 확정: 한국 KRX 제공값 우선, 미국 근사)
 TRADING_VALUE_SOURCES = ("EXCHANGE_PROVIDED", "RECONSTRUCTED")
 

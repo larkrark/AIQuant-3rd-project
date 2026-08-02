@@ -22,8 +22,17 @@ except ImportError:
                 k, v = _l.strip().split("=", 1)
                 os.environ.setdefault(k.strip().lstrip("\ufeff"), v.strip().strip('"').strip("'"))
 
-START, END = "2025-10-01", "2026-07-01"    # 3/31 회차 관측창(90개장일) 여유 포함 ~ 6/30 회차 이후
-ECOS_FX_STAT = ("731Y001", "0000001")      # 원/달러 — 계열코드는 데이터사전 확정 대기(잠정)
+# 기본값은 파일럿 확정 구간이다. 바꾸지 않는다 — 팀의 파일럿 재현이 이 값에 걸려 있다.
+#   3/31 회차 관측창(90개장일) 여유 포함 ~ 6/30 회차 이후
+START, END = "2025-10-01", "2026-07-01"
+
+# 장기 백테스트용 구간 확장 — 환경변수로만 덮어쓴다(기본 동작 불변).
+#   COLLECT_START=2013-01-01 COLLECT_END=2026-07-24 python collect_pilot_inputs.py ...
+# 규칙은 건드리지 않는다. 수집 구간만 넓힌다.
+START = os.environ.get("COLLECT_START", START)
+END = os.environ.get("COLLECT_END", END)
+
+ECOS_FX_STAT = ("731Y001", "0000001")      # 원/달러 — D-20260731-01 확정 (매매기준율·주기 D·KRW_PER_USD)
 
 
 def collect_us_prices(tickers: list, out: str):
@@ -42,9 +51,22 @@ def collect_us_prices(tickers: list, out: str):
         factor = pd.Series(1.0, index=range(len(df)))
         if splits is not None and len(splits):
             sp_dates = pd.to_datetime(splits.index).tz_localize(None) if getattr(splits.index, "tz", None) else pd.to_datetime(splits.index)
+            close = df["Close"].to_numpy()
             for sd, ratio in zip(sp_dates, splits.values):
-                if float(ratio) > 0:
-                    factor[list(dates < sd)] /= float(ratio)   # 분할일 이전 가격을 비율로 역조정
+                ratio = float(ratio)
+                if ratio <= 0:
+                    continue
+                # yfinance 는 auto_adjust=False 에서도 분할은 이미 반영한 Close 를 준다
+                # (미조정인 것은 배당뿐이다). 그 위에 또 나누면 분할일에 인위적 계단이 생긴다.
+                #   실측 ANET 2021-11-19 · 2024-12-05, APH 2014-10-13 에서 확인
+                # 그래서 원계열이 분할일에 실제로 튀는지 먼저 보고, 튈 때만 역조정한다.
+                pos = int((dates < sd).sum())
+                if not (0 < pos < len(close)):
+                    continue
+                jump = close[pos - 1] / close[pos] if close[pos] else 1.0
+                if abs(jump - ratio) / ratio < 0.25:      # 원계열이 미조정 — 역조정 필요
+                    factor[list(dates < sd)] /= ratio
+                # 근사하지 않으면 이미 조정된 계열이므로 손대지 않는다
         for (d, r), f in zip(df.iterrows(), factor):
             rows.append({"security_id": tk, "market": "US", "market_date": d.strftime("%Y-%m-%d"),
                          "raw_close": round(float(r["Close"]), 4), "volume": float(r["Volume"]),
@@ -117,15 +139,31 @@ def collect_fx(out: str):
         print("[WARN] ECOS_API_KEY 없음 — ECOS 웹에서 원/달러 일별 CSV 수동 다운로드 후 fx.csv(market_date,fx_rate)로 저장")
         return
     stat, item = ECOS_FX_STAT
-    url = (f"https://ecos.bok.or.kr/api/StatisticSearch/{key}/json/kr/1/500/{stat}/D/"
-           f"{START.replace('-','')}/{END.replace('-','')}/{item}")
-    with urllib.request.urlopen(url, timeout=30) as r:
-        data = json.loads(r.read())
-    rows = data.get("StatisticSearch", {}).get("row", [])
+    # ECOS 는 1회 요청 반환행수에 상한이 있다. 파일럿 3개월은 1회로 끝나지만
+    # 다년 구간은 넘치므로 페이지를 넘겨 전량을 받는다(누락 시 조용히 잘린다).
+    PAGE = 1000
+    rows, start_idx = [], 1
+    while True:
+        url = (f"https://ecos.bok.or.kr/api/StatisticSearch/{key}/json/kr/"
+               f"{start_idx}/{start_idx + PAGE - 1}/{stat}/D/"
+               f"{START.replace('-','')}/{END.replace('-','')}/{item}")
+        with urllib.request.urlopen(url, timeout=60) as r:
+            data = json.loads(r.read())
+        body = data.get("StatisticSearch")
+        if not body:                       # RESULT 코드(INFO-200 등) = 더 받을 것 없음
+            break
+        page_rows = body.get("row", [])
+        rows.extend(page_rows)
+        total = int(body.get("list_total_count", len(rows)))
+        if len(page_rows) < PAGE or len(rows) >= total:
+            break
+        start_idx += PAGE
     fx = pd.DataFrame({"market_date": [f"{x['TIME'][:4]}-{x['TIME'][4:6]}-{x['TIME'][6:]}" for x in rows],
                        "fx_rate": [float(x["DATA_VALUE"]) for x in rows]})
+    fx = fx.drop_duplicates("market_date").sort_values("market_date")
     fx.to_csv(os.path.join(out, "fx.csv"), index=False)
-    print(f"fx.csv {len(fx)}행 (계열 {stat}/{item} — 잠정, 데이터사전 확정 대기)")
+    span = f"{fx.market_date.min()}~{fx.market_date.max()}" if len(fx) else "없음"
+    print(f"fx.csv {len(fx)}행 {span} (계열 {stat}/{item} — D-20260731-01 확정)")
 
 
 def convert_krx_csv(krx_csv_path: str, out_path: str):
