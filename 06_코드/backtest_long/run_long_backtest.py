@@ -48,6 +48,10 @@ PILOT_INPUT = os.path.join(CODE, "data", "pilot_run", "input_krxbm")
 
 DEFAULT_START, DEFAULT_END = "2013-01-01", "2026-07-24"
 
+# 엔진 입력계약 (run_pilot.py 가 읽는 파일). 스냅샷·해시 기록의 기준이다.
+ENGINE_INPUTS = ["prices.csv", "calendar.csv", "fx.csv", "bm_kr.csv", "bm_us.csv",
+                 "seed_basket.csv", "listings.csv", "halts.csv"]
+
 
 def load_env():
     """.env 를 찾아 환경변수로 올린다. 값은 출력하지 않는다(저장소 공개)."""
@@ -134,9 +138,17 @@ def build_inputs(basket_path):
     한국 가격은 공시·PIT 담당 인계본(2013-01-02~)을 그대로 쓴다. QA 는 수집하지 않는다.
     미국 가격만 이번에 확장 수집분으로 교체한다.
     """
+    # 스냅샷으로 복원한 경우 prices.csv 는 이미 조립돼 있고 prices_us.csv 는 없다.
+    us_path = os.path.join(INPUT_LONG, "prices_us.csv")
+    built = os.path.join(INPUT_LONG, "prices.csv")
+    if not os.path.exists(us_path) and os.path.exists(built):
+        p = pd.read_csv(built, dtype={"security_id": str})
+        print(f"[조립] prices.csv {len(p)}행 — 스냅샷 사용 (재조립 생략)")
+        return p
+
     kr = pd.read_csv(os.path.join(PILOT_INPUT, "prices.csv"), dtype={"security_id": str})
     kr = kr[kr["market"] == "KR"]
-    us = pd.read_csv(os.path.join(INPUT_LONG, "prices_us.csv"), dtype={"security_id": str})
+    us = pd.read_csv(us_path, dtype={"security_id": str})
     prices = pd.concat([kr, us], ignore_index=True).sort_values(["security_id", "market_date"])
     prices.to_csv(os.path.join(INPUT_LONG, "prices.csv"), index=False)
     print(f"[조립] prices.csv {len(prices)}행  (KR {len(kr)} 인계본 + US {len(us)} 확장수집)")
@@ -206,8 +218,12 @@ def summarize(start, end, sel_dates):
         "selection_rounds": len(sel_dates),
         "index_days": len(idx),
         "cell_shortage_events": short,
+        # 엔진 입력계약에 들어가는 파일만 기록한다. 폴더 전체를 훑으면
+        # 부수 파일(랜덤바스켓 pool_prices 등) 유무에 따라 해시 목록이 달라져
+        # 같은 산출인데도 메타가 어긋난다.
         "inputs_sha256_16": {f: sha16(os.path.join(INPUT_LONG, f))
-                             for f in sorted(os.listdir(INPUT_LONG)) if f.endswith(".csv")},
+                             for f in ENGINE_INPUTS
+                             if os.path.exists(os.path.join(INPUT_LONG, f))},
     }
     with open(os.path.join(OUT, "long_run_meta.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
@@ -229,6 +245,15 @@ def main():
 
     if not load_env():
         print("[경고] .env 미발견 — ECOS 환율 수집이 실패할 수 있다")
+    if a.skip_collect and not os.path.exists(os.path.join(INPUT_LONG, "prices.csv")):
+        # 커밋된 스냅샷으로 복원 — 외부 API 접속 없이 재현 가능하게 한다
+        snap = os.path.join(HERE, "input_snapshot.zip")
+        if os.path.exists(snap):
+            import zipfile
+            os.makedirs(INPUT_LONG, exist_ok=True)
+            with zipfile.ZipFile(snap) as z:
+                z.extractall(INPUT_LONG)
+            print(f"[스냅샷] input_snapshot.zip 복원 — 외부 접속 없이 재현한다")
     if not a.skip_collect:
         collect(a.start, a.end, a.basket)
     prices = build_inputs(a.basket)

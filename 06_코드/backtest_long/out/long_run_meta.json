@@ -11,16 +11,13 @@
   "index_days": 3076,
   "cell_shortage_events": 22,
   "inputs_sha256_16": {
-    "bm_kr.csv": "dbc63fcad88ecfda",
-    "bm_kr_krx300_reserve.csv": "7284a341e8d36eff",
-    "bm_us.csv": "b3ad127e28beb511",
+    "prices.csv": "9345cc03fd86dc99",
     "calendar.csv": "e82f42c4a4764cda",
     "fx.csv": "82301cfc9750c847",
-    "halts.csv": "e4f471b8a3ca23c7",
+    "bm_kr.csv": "dbc63fcad88ecfda",
+    "bm_us.csv": "b3ad127e28beb511",
+    "seed_basket.csv": "4155c26a366dbd64",
     "listings.csv": "891558cb030beced",
-    "listings_us_draft.csv": "82a13150204f5423",
-    "prices.csv": "9345cc03fd86dc99",
-    "prices_us.csv": "448e7bf2ae3d4b1a",
-    "seed_basket.csv": "4155c26a366dbd64"
+    "halts.csv": "e4f471b8a3ca23c7"
   }
 }

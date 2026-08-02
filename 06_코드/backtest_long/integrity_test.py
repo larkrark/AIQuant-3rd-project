@@ -70,6 +70,18 @@ def require_inputs():
     need = ["prices.csv", "calendar.csv", "fx.csv", "bm_kr.csv", "bm_us.csv",
             "seed_basket.csv", "listings.csv"]
     miss = [f for f in need if not os.path.exists(os.path.join(INPUT_LONG, f))]
+
+    # 입력이 없으면 저장소에 커밋된 스냅샷을 자동으로 푼다.
+    # 외부 API(KRX·ECOS) 접속 없이도 검증을 재현할 수 있어야 한다.
+    snap = os.path.join(HERE, "input_snapshot.zip")
+    if miss and os.path.exists(snap):
+        import zipfile
+        os.makedirs(INPUT_LONG, exist_ok=True)
+        with zipfile.ZipFile(snap) as z:
+            z.extractall(INPUT_LONG)
+        print(f"[스냅샷] {os.path.basename(snap)} 을 풀었다 — 외부 접속 없이 재현한다")
+        miss = [f for f in need if not os.path.exists(os.path.join(INPUT_LONG, f))]
+
     if not miss and os.path.exists(os.path.join(OUT, "weights_2026-06-30.csv")):
         return
     print("=" * 70)
@@ -83,8 +95,10 @@ def require_inputs():
         print("  아래 한 줄로 동일한 입력을 다시 만들 수 있다. .env(ECOS_API_KEY·KRX_ID·KRX_PW) 필요.")
     print("\n  실행 순서")
     print("    cd 06_코드/backtest_long")
-    print("    python run_long_backtest.py            # 수집 + 엔진 (10~15분)")
-    print("    python integrity_test.py               # 본 검증")
+    print("    python run_long_backtest.py --skip-collect   # 스냅샷으로 엔진만 (1분)")
+    print("    python integrity_test.py                     # 본 검증")
+    print("\n  원자료부터 다시 받으려면 (KRX·ECOS 접속 필요)")
+    print("    python run_long_backtest.py                  # 수집 + 엔진 (10~15분)")
     print("\n  같은 입력인지 확인하려면 out/long_run_meta.json 의 inputs_sha256_16 을")
     print("  재수집분과 대조한다. 값이 같으면 동일 입력이다.")
     sys.exit(2)
