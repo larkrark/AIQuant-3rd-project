@@ -158,6 +158,39 @@ def run_engine(sel_dates):
     return r.returncode
 
 
+def compare_with_committed():
+    """재수집분이 저장소에 기록된 입력과 같은지 대조한다.
+
+    data/input_long/ 은 .gitignore 대상이라 남이 pull 해도 없다. 대신
+    out/long_run_meta.json 에 입력 SHA-256 이 커밋돼 있으므로, 재수집 후
+    해시를 맞춰보면 '같은 입력으로 같은 검증을 돌렸는지'를 확인할 수 있다.
+    """
+    meta_path = os.path.join(OUT, "long_run_meta.json")
+    if not os.path.exists(meta_path):
+        return
+    old = json.load(open(meta_path, encoding="utf-8")).get("inputs_sha256_16", {})
+    if not old:
+        return
+    print("\n[입력 대조] 저장소 기록 vs 이번 수집")
+    same = diff = 0
+    for f, h in sorted(old.items()):
+        p = os.path.join(INPUT_LONG, f)
+        if not os.path.exists(p):
+            print(f"    {f:<20} 기록 {h}  →  파일 없음")
+            diff += 1
+            continue
+        n = sha16(p)
+        if n == h:
+            same += 1
+        else:
+            diff += 1
+            print(f"    {f:<20} 기록 {h}  →  현재 {n}   ★상이★")
+    print(f"    동일 {same} · 상이 {diff}")
+    if diff:
+        print("    ※ 상이해도 오류가 아닐 수 있다 — 수집 시점이 다르면 최근 구간이 늘어난다.")
+        print("       구간을 맞추려면 --start/--end 를 기록과 동일하게 지정할 것.")
+
+
 def summarize(start, end, sel_dates):
     idx = pd.read_csv(os.path.join(OUT, "index_vs_benchmark.csv"))
     cells = pd.read_csv(os.path.join(OUT, "cell_shortage.csv"))
@@ -199,6 +232,7 @@ def main():
     if not a.skip_collect:
         collect(a.start, a.end, a.basket)
     prices = build_inputs(a.basket)
+    compare_with_committed()
 
     sel = selection_dates(a.start, a.end, a.freq)
     sel, dropped = drop_unseedable(sel, prices)

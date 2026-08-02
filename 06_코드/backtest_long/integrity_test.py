@@ -61,6 +61,35 @@ def sha(path):
     return hashlib.sha256(open(path, "rb").read().replace(b"\r\n", b"\n")).hexdigest()[:16]
 
 
+def require_inputs():
+    """입력 세트가 없으면 무엇을 어떻게 만들어야 하는지 알려주고 멈춘다.
+
+    data/input_long/ 은 .gitignore 대상이다(가격 4.3만행 등 용량). 코드는 전부
+    저장소에 있으므로 아래 한 줄로 동일한 입력을 다시 만들 수 있다.
+    """
+    need = ["prices.csv", "calendar.csv", "fx.csv", "bm_kr.csv", "bm_us.csv",
+            "seed_basket.csv", "listings.csv"]
+    miss = [f for f in need if not os.path.exists(os.path.join(INPUT_LONG, f))]
+    if not miss and os.path.exists(os.path.join(OUT, "weights_2026-06-30.csv")):
+        return
+    print("=" * 70)
+    print("[중단] 검증에 필요한 입력·산출물이 없다")
+    print("=" * 70)
+    if miss:
+        print(f"  없는 입력  {INPUT_LONG}")
+        for f in miss:
+            print(f"     · {f}")
+        print("\n  data/input_long/ 은 .gitignore 대상이다(용량). 코드는 전부 저장소에 있으므로")
+        print("  아래 한 줄로 동일한 입력을 다시 만들 수 있다. .env(ECOS_API_KEY·KRX_ID·KRX_PW) 필요.")
+    print("\n  실행 순서")
+    print("    cd 06_코드/backtest_long")
+    print("    python run_long_backtest.py            # 수집 + 엔진 (10~15분)")
+    print("    python integrity_test.py               # 본 검증")
+    print("\n  같은 입력인지 확인하려면 out/long_run_meta.json 의 inputs_sha256_16 을")
+    print("  재수집분과 대조한다. 값이 같으면 동일 입력이다.")
+    sys.exit(2)
+
+
 def truncate_inputs(cut: str, dst: str):
     """cut 이후 행을 전부 잘라낸 입력 세트를 만든다. 미래를 물리적으로 제거한다."""
     os.makedirs(dst, exist_ok=True)
@@ -97,6 +126,7 @@ def main():
     ap.add_argument("--repeats", type=int, default=3)
     a = ap.parse_args()
     test_rounds = [x.strip() for x in a.rounds.split(",") if x.strip()]
+    require_inputs()
     full = all_rounds()
 
     print("=" * 70)

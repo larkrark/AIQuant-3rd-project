@@ -14,6 +14,27 @@ python make_figures.py                                   # figures/ 에 PNG 6종
 
 `.env`(`ECOS_API_KEY`·`KRX_ID`·`KRX_PW`)가 필요하다. 커밋 금지 파일이며 자동으로 찾는다.
 
+## ★ pull 받은 직후에는 수집을 먼저 돌려야 한다
+
+`06_코드/data/input_long/` 은 `.gitignore` 대상이다. 가격 42,972행·환율 3,342행 등
+용량 때문인데, **코드는 전부 저장소에 있으므로 아래 한 줄로 동일한 입력을 다시 만든다.**
+
+```bash
+cd 06_코드/backtest_long
+python run_long_backtest.py       # 수집 + 조립 + 엔진 (10~15분)
+python integrity_test.py          # 그 다음에 검증
+```
+
+수집을 건너뛰고 검증부터 돌리면 `[중단] 검증에 필요한 입력·산출물이 없다` 가 뜨고
+실행 순서를 안내한다.
+
+**같은 입력인지 확인하는 방법** — `run_long_backtest.py` 는 수집 직후
+`out/long_run_meta.json` 의 `inputs_sha256_16`(커밋돼 있음)과 이번 수집분 해시를
+자동으로 대조해 출력한다. 전부 동일하면 같은 입력으로 같은 검증을 돌린 것이다.
+
+구간이 다르면 해시가 달라진다. 기록과 맞추려면 `--start 2013-01-01 --end 2026-07-24`
+를 명시할 것(기본값과 같다).
+
 ---
 
 ## 1. 무엇을 바꿨나 — 규칙은 불변

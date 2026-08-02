@@ -11,39 +11,12 @@
         "mismatches": [],
         "metadata_only_diff_files": 13,
         "status": "PASS"
-      },
-      {
-        "round": "2019-06-30",
-        "cut": "2019-07-10",
-        "rounds_compared": 25,
-        "judgment_rows": 450,
-        "mismatches": [],
-        "metadata_only_diff_files": 25,
-        "status": "PASS"
-      },
-      {
-        "round": "2022-06-30",
-        "cut": "2022-07-10",
-        "rounds_compared": 37,
-        "judgment_rows": 666,
-        "mismatches": [],
-        "metadata_only_diff_files": 37,
-        "status": "PASS"
-      },
-      {
-        "round": "2024-06-30",
-        "cut": "2024-07-10",
-        "rounds_compared": 45,
-        "judgment_rows": 810,
-        "mismatches": [],
-        "metadata_only_diff_files": 45,
-        "status": "PASS"
       }
     ],
     "verdict": "PASS"
   },
   "determinism": {
-    "repeats": 3,
+    "repeats": 1,
     "verdict": "PASS",
     "files": 164
   },
