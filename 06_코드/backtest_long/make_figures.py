@@ -155,3 +155,69 @@ fig.text(0.5, 0.075, "두 축은 통화가 다르다. 좌우 높이를 비교하
 save(fig, "06_P10하한.png", bottom=0.30)
 
 print(f"\n완료 — {FIG}")
+
+# ── 7. 랜덤 바스켓 대조 ───────────────────────────────────
+rb_path = os.path.join(OUT, "random_basket.json")
+fin_path = os.path.join(OUT, "random_basket_finals.npy")
+if os.path.exists(rb_path) and os.path.exists(fin_path):
+    rb = json.load(open(rb_path, encoding="utf-8"))
+    finals = np.load(fin_path)
+    fig, ax = plt.subplots(figsize=(11, 4.8))
+    ax.hist(finals, bins=45, color=GRAY, alpha=0.65,
+            label=f"무작위 15종목 {rb['trials']:,}회")
+    ax.axvline(rb["benchmark"], color="#2E7D32", lw=2, ls="--",
+               label=f"합성 BM {rb['benchmark']:,.0f} (백분위 {rb['percentile_bm']:.0f})")
+    ax.axvline(rb["ours"], color=RED, lw=2.5,
+               label=f"테마지수 {rb['ours']:,.0f} (백분위 {rb['percentile_ours']:.0f})")
+    ax.annotate(f"무작위 최대 {finals.max():,.0f}", xy=(finals.max(), 0),
+                xytext=(finals.max(), ax.get_ylim()[1] * 0.55), fontsize=9,
+                color=NAVY, ha="center",
+                arrowprops=dict(arrowstyle="->", color=NAVY, lw=1))
+    ax.set_title("같은 기간·같은 구조로 아무 종목이나 뽑으면 — 우리 지수는 어디에 있나",
+                 color=NAVY, fontsize=13, pad=12)
+    ax.set_xlabel("종료 지수 (기준 1,000)")
+    ax.set_ylabel("시행 횟수")
+    ax.legend(fontsize=9)
+    ax.grid(alpha=0.25)
+    save(fig, "07_랜덤바스켓.png", bottom=0.22)
+
+# ── 8. 팩터 귀속 ─────────────────────────────────────────
+fa_path = os.path.join(OUT, "factor_attribution.json")
+if os.path.exists(fa_path):
+    fa = json.load(open(fa_path, encoding="utf-8"))
+    fig, ax = plt.subplots(1, 2, figsize=(12, 4.4))
+    seg = [("전반\n2013~2020", fa["split_전반"]), ("후반\n2020~2026", fa["split_후반"]),
+           ("전체", fa["capm"])]
+    xs = [s[0] for s in seg]
+    al = [s[1]["alpha_annual_pct"] for s in seg]
+    tv = [s[1]["alpha_t"] for s in seg]
+    bars = ax[0].bar(xs, al, color=[RED if v < 0 else NAVY for v in al], width=0.55)
+    # 막대가 높으면 라벨을 막대 안에 넣는다 — 밖에 두면 제목과 겹친다
+    span = max(al) - min(al)
+    ax[0].set_ylim(min(al) - span * 0.28, max(al) + span * 0.28)
+    for b, v, t in zip(bars, al, tv):
+        inside = v > max(al) * 0.6
+        ax[0].text(b.get_x() + b.get_width() / 2,
+                   v - span * 0.13 if inside else v + (span * 0.04 if v >= 0 else -span * 0.17),
+                   f"{v:+.1f}%\nt={t:.2f}", ha="center", fontsize=9,
+                   color="white" if inside else NAVY,
+                   fontweight="bold" if inside else "normal")
+    ax[0].axhline(0, color="black", lw=0.8)
+    ax[0].set_title("연율 α — 구간에 따라 부호가 바뀐다", color=NAVY, fontsize=11)
+    ax[0].set_ylabel("연율 α (%)")
+    ax[0].grid(axis="y", alpha=0.25)
+
+    if fa.get("ff4"):
+        bt = fa["ff4"]["betas"]
+        names = {"Mkt_RF": "시장", "SMB": "규모", "HML": "가치", "MOM": "모멘텀"}
+        ax[1].barh([names[k] for k in bt], list(bt.values()), color=NAVY, height=0.5)
+        ax[1].axvline(0, color="black", lw=0.8)
+        ax[1].set_title("팩터 노출 (FF3+모멘텀 · 참고값)", color=NAVY, fontsize=11)
+        ax[1].grid(axis="x", alpha=0.25)
+        ax[1].text(0.5, -0.22, "FF는 달러·미국 기준 — 원화·한미혼합 지수와 정합하지 않는다",
+                   transform=ax[1].transAxes, ha="center", fontsize=8, color=GRAY)
+    fig.suptitle(f"초과수익의 원천 — β(BM) = {fa['capm']['beta']:.2f}",
+                 color=NAVY, fontsize=13)
+    save(fig, "08_팩터귀속.png", bottom=0.26)
+
+print(f"\n완료 — {FIG}")
