@@ -256,4 +256,86 @@ if os.path.exists(tc_path) and os.path.exists(tb_path):
                  color=NAVY, fontsize=13)
     save(fig, "09_회전율비용.png", bottom=0.26)
 
+# ── 10. 검증 지도 — 무엇이 증명됐고 무엇이 아닌가 ──────────
+it_path = os.path.join(OUT, "integrity_test.json")
+GREEN, AMBER = "#1E7A46", "#E08A1E"
+it = json.load(open(it_path, encoding="utf-8")) if os.path.exists(it_path) else {}
+rb = json.load(open(os.path.join(OUT, "random_basket.json"), encoding="utf-8")) \
+    if os.path.exists(os.path.join(OUT, "random_basket.json")) else {}
+fa = json.load(open(os.path.join(OUT, "factor_attribution.json"), encoding="utf-8")) \
+    if os.path.exists(os.path.join(OUT, "factor_attribution.json")) else {}
+tcj = json.load(open(os.path.join(OUT, "turnover_cost.json"), encoding="utf-8")) \
+    if os.path.exists(os.path.join(OUT, "turnover_cost.json")) else {}
+
+pit_rows = sum(c.get("judgment_rows", 0) for c in it.get("pit", {}).get("cases", []))
+LEFT = [
+    ("PIT 무결성", "PASS", f"판정 {pit_rows:,}행 전부 동일\n미래를 잘라내도 안 바뀐다"),
+    ("결정론성", "PASS", f"{it.get('determinism',{}).get('files',0)}파일 "
+                        f"{it.get('determinism',{}).get('repeats',0)}회 해시 동일"),
+    ("재현성", "PASS", "엔진·독립재산출·수기검산·교차구현\n네 경로 1e-15 수준 일치"),
+    ("추종 가능성", "PASS", f"회전율 연 {tcj.get('turnover',{}).get('annual',0)*100:.0f}% · "
+                          f"비용 {tcj.get('cost',{}).get('annual_bp',0):.0f}bp\n1조 규모 수용"),
+]
+RIGHT = [
+    ("성과 신뢰도", "FAIL", f"무작위 {rb.get('trials',0):,}회 최대 {rb.get('random_max',0):,.0f}\n"
+                          f"우리 {rb.get('ours',0):,.0f} — 분포 밖"),
+    ("α 안정성", "FAIL", f"전반 {fa.get('split_전반',{}).get('alpha_annual_pct',0):+.1f}% / "
+                        f"후반 {fa.get('split_후반',{}).get('alpha_annual_pct',0):+.1f}%\n국면 의존"),
+    ("종목 선택 방법론", "미검증", "전체시장 PIT 유니버스 필요\n(안건 B)"),
+]
+
+fig, ax = plt.subplots(figsize=(12.5, 6.2))
+ax.axis("off")
+ax.text(0.25, 0.95, "알고리즘 품질", ha="center", fontsize=15, color=NAVY, fontweight="bold")
+ax.text(0.75, 0.95, "성과 신뢰도", ha="center", fontsize=15, color=NAVY, fontweight="bold")
+ax.text(0.25, 0.905, "선택편향과 무관하다", ha="center", fontsize=9.5, color=GRAY)
+ax.text(0.75, 0.905, "선택편향의 영향을 받는다", ha="center", fontsize=9.5, color=GRAY)
+ax.plot([0.5, 0.5], [0.06, 0.90], color=GRAY, lw=1, ls=":")
+
+def card(x, y, title, verdict, body, w=0.42, h=0.175):
+    col = GREEN if verdict == "PASS" else (RED if verdict == "FAIL" else AMBER)
+    ax.add_patch(plt.Rectangle((x - w / 2, y - h / 2), w, h, facecolor=col,
+                               alpha=0.09, edgecolor=col, lw=1.6, zorder=1))
+    ax.text(x - w / 2 + 0.018, y + h / 2 - 0.038, title, fontsize=12,
+            color=NAVY, fontweight="bold", va="center")
+    ax.text(x + w / 2 - 0.018, y + h / 2 - 0.038, verdict, fontsize=12,
+            color=col, fontweight="bold", ha="right", va="center")
+    ax.text(x - w / 2 + 0.018, y - 0.028, body, fontsize=9.5, color="#333", va="center")
+
+for i, (t, v, b) in enumerate(LEFT):
+    card(0.25, 0.80 - i * 0.195, t, v, b)
+for i, (t, v, b) in enumerate(RIGHT):
+    card(0.75, 0.80 - i * 0.195, t, v, b)
+
+ax.text(0.75, 0.145, "수익성을 입증하려면\n① 전체시장 PIT 유니버스 재구성 (안건 B)\n"
+                     "② 규칙 동결 2026-07-31 이후 실시간 추적",
+        fontsize=10, color=NAVY, va="center")
+fig.suptitle("검증 지도 — 무엇이 증명됐고 무엇이 아닌가", color=NAVY, fontsize=16, y=0.99)
+save(fig, "10_검증지도.png", bottom=0.10)
+
+# ── 11. PIT 무결성 ───────────────────────────────────────
+if it.get("pit", {}).get("cases"):
+    cs = [c for c in it["pit"]["cases"] if c.get("status") == "PASS"]
+    fig, ax = plt.subplots(figsize=(11.5, 4.6))
+    ys = range(len(cs))
+    ax.barh(list(ys), [c["rounds_compared"] for c in cs], color=NAVY,
+            height=0.5, zorder=2)
+    for i, c in enumerate(cs):
+        ax.text(c["rounds_compared"] + 0.7, i,
+                f"회차 {c['rounds_compared']}개 · 판정 {c['judgment_rows']:,}행   "
+                f"→  일치", va="center", fontsize=10.5, color=GREEN,
+                fontweight="bold")
+    ax.set_yticks(list(ys))
+    ax.set_yticklabels([f"{c['round']}\n데이터 {c['cut']} 까지" for c in cs], fontsize=9)
+    ax.set_xlim(0, max(c["rounds_compared"] for c in cs) * 2.1)
+    ax.set_xlabel("대조한 선정 회차 수")
+    ax.invert_yaxis()
+    ax.grid(axis="x", alpha=0.25, zorder=0)
+    ax.set_title(f"PIT 무결성 — 미래를 잘라내도 판정이 바뀌지 않는다  "
+                 f"(총 {pit_rows:,}행)", color=NAVY, fontsize=13.5, pad=12)
+    ax.text(0.5, -0.30, "각 시점 이후의 가격·환율·달력·BM 을 물리적으로 삭제한 뒤 "
+                        "같은 회차를 재산출해 편입 판정을 대조",
+            transform=ax.transAxes, ha="center", fontsize=9, color=GRAY)
+    save(fig, "11_PIT무결성.png", bottom=0.30)
+
 print(f"\n완료 — {FIG}")
