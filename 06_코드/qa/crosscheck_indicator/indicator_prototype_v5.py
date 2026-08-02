@@ -3,7 +3,7 @@
 file_status: PILOT_IMPLEMENTATION
 method_status: APPROVAL_PENDING
 merge_status: READY_FOR_REVIEW
-purpose: 통합 인디케이터 엔진 v5.1 — v4 리뷰 + 김민호 v3 리뷰 7건 대조 보완(INPUT_NOT_AVAILABLE 분리·THEME_NOT_REVIEWED·QA값 주입식)
+purpose: 통합 인디케이터 엔진 v5.2 — v4 리뷰 + 김민호 v3 리뷰 7건 대조 보완(INPUT_NOT_AVAILABLE 분리·THEME_NOT_REVIEWED·QA값 주입식) + MARKET_CLOSED 창 제외(260731 QA 재리뷰)
 반영 사항:
   [F1] 빈 셀 재배분 복원 — D-10 ③ 확정 규칙(같은 테마 타지역 재배분, 전 지역 공백 시 G 예외절차 이관).
        v4의 "빈 셀 정책 결정 필요" 에러는 이미 결정된 규칙의 미구현이었음.
@@ -72,7 +72,9 @@ class CustomIndexEngineV5:
         rows = []
         for sec, g in states_df.groupby("security_id"):
             g = g[g["market_date"] <= cutoff].sort_values("market_date")
-            listed = g[g["daily_market_state"] != "NOT_LISTED"]
+            # 관측창 = 개장일 행만. NOT_LISTED(미상장)·MARKET_CLOSED(휴장)는 창 구성에서 제외
+            # (엔진 그리드는 휴장 행을 생성하지 않으나, 임의 입력 방어 — 260731 QA 리뷰 반영)
+            listed = g[~g["daily_market_state"].isin(["NOT_LISTED", "MARKET_CLOSED"])]
             seasoning_days = int(listed["daily_market_state"].isin(VALID_OBS_STATES).sum())
             win = listed.tail(Config.OPEN_DAYS_TARGET)
             n = len(win)
