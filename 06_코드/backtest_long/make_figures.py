@@ -35,7 +35,9 @@ WARN = ("성과 인용 금지 — Seed18은 2026년 시점 선택이므로 과�
         "선택편향·생존편향을 포함한다. 본 그림은 규칙 기전 실증용이다.")
 
 
-def save(fig, name):
+def save(fig, name, bottom=0.16):
+    """경고문은 축 라벨 아래에 따로 자리를 잡아 둔다 — 겹치면 둘 다 못 읽는다."""
+    fig.subplots_adjust(bottom=bottom)
     fig.text(0.5, 0.015, WARN, ha="center", fontsize=7.5, color=RED)
     fig.savefig(os.path.join(FIG, name), dpi=160, bbox_inches="tight",
                 facecolor="white")
@@ -85,17 +87,21 @@ save(fig, "02_편입히트맵.png")
 
 # ── 3. 셀 부족 재배분 ─────────────────────────────────────
 sh = cells[cells.cell_shortage_flag == 1]
-fig, ax = plt.subplots(figsize=(10, 4.2))
+fig, ax = plt.subplots(figsize=(10, 4.4))
 if len(sh):
     g = sh.groupby(["cell_id", "resolution"]).size().sort_values()
-    ax.barh([f"{a}\n→ {b.split('->')[-1]}" for a, b in g.index], g.values, color=NAVY)
-    ax.set_xlabel("발동 회차 수")
+    ax.barh([f"{a}\n→ {b.split('->')[-1]}" for a, b in g.index], g.values,
+            color=NAVY, height=0.55)
+    ax.set_xlim(0, g.values.max() * 1.15)
     for i, v in enumerate(g.values):
-        ax.text(v + 0.15, i, str(v), va="center", fontsize=10, color=NAVY)
+        ax.text(v + g.values.max() * 0.02, i, f"{v}회", va="center",
+                fontsize=11, color=NAVY, fontweight="bold")
 ax.set_title(f"셀 부족 재배분 (D-10 ③) — 총 {len(sh)}회 발동",
              color=NAVY, fontsize=13, pad=12)
+ax.text(0.5, -0.16, "빈 셀의 몫을 같은 테마 타지역 셀로 넘긴 정기변경 회차 수",
+        transform=ax.transAxes, ha="center", fontsize=9, color=GRAY)
 ax.grid(axis="x", alpha=0.25)
-save(fig, "03_셀부족재배분.png")
+save(fig, "03_셀부족재배분.png", bottom=0.26)
 
 # ── 4. 롤링 추적오차 ──────────────────────────────────────
 r_i = idx.index_level.pct_change()
@@ -129,16 +135,23 @@ for f in sorted(glob.glob(os.path.join(OUT, "thresholds_*.json"))):
     for mk, v in j.get("provisional_P10", {}).items():
         rows.append({"selection_date": j["selection_date"], "market": mk, "p10": v})
 th = pd.DataFrame(rows)
-fig, ax = plt.subplots(1, 2, figsize=(12, 4.2))
+# 단위가 다르다 — 한국은 원, 미국은 달러. 축에 명시하지 않으면 두 그림을 비교해 읽게 된다.
+UNIT = {"KR": ("일평균 거래대금 (억 원)", 1e8), "US": ("일평균 거래대금 (백만 USD)", 1e6)}
+fig, ax = plt.subplots(1, 2, figsize=(12, 4.4))
 for i, mk in enumerate(["KR", "US"]):
     d = th[th.market == mk]
-    ax[i].plot(pd.to_datetime(d.selection_date), d.p10, color=NAVY, marker="o", ms=3, lw=1.2)
+    lbl, div = UNIT[mk]
+    ax[i].plot(pd.to_datetime(d.selection_date), d.p10 / div,
+               color=NAVY, marker="o", ms=3.5, lw=1.3)
     ax[i].set_title(f"{mk} 유동성 하한 P10", color=NAVY, fontsize=11)
+    ax[i].set_ylabel(lbl, fontsize=9)
     ax[i].set_yscale("log")
-    ax[i].grid(alpha=0.25)
+    ax[i].grid(alpha=0.25, which="both")
     ax[i].tick_params(labelrotation=30, labelsize=8)
 fig.suptitle("규칙이 산출한 유동성 하한의 시간 변화 — 고정값이 아니다",
              color=NAVY, fontsize=13)
-save(fig, "06_P10하한.png")
+fig.text(0.5, 0.075, "두 축은 통화가 다르다. 좌우 높이를 비교하지 말 것.",
+         ha="center", fontsize=8.5, color=GRAY)
+save(fig, "06_P10하한.png", bottom=0.30)
 
 print(f"\n완료 — {FIG}")
