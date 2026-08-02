@@ -154,8 +154,6 @@ fig.text(0.5, 0.075, "두 축은 통화가 다르다. 좌우 높이를 비교하
          ha="center", fontsize=8.5, color=GRAY)
 save(fig, "06_P10하한.png", bottom=0.30)
 
-print(f"\n완료 — {FIG}")
-
 # ── 7. 랜덤 바스켓 대조 ───────────────────────────────────
 rb_path = os.path.join(OUT, "random_basket.json")
 fin_path = os.path.join(OUT, "random_basket_finals.npy")
@@ -219,5 +217,43 @@ if os.path.exists(fa_path):
     fig.suptitle(f"초과수익의 원천 — β(BM) = {fa['capm']['beta']:.2f}",
                  color=NAVY, fontsize=13)
     save(fig, "08_팩터귀속.png", bottom=0.26)
+
+print(f"\n완료 — {FIG}")
+
+# ── 9. 회전율·비용 ───────────────────────────────────────
+tc_path = os.path.join(OUT, "turnover_cost.json")
+tb_path = os.path.join(OUT, "turnover_by_rebalance.csv")
+if os.path.exists(tc_path) and os.path.exists(tb_path):
+    tc = json.load(open(tc_path, encoding="utf-8"))
+    tb = pd.read_csv(tb_path, parse_dates=["effective_date"])
+    fig, ax = plt.subplots(1, 2, figsize=(12, 4.4))
+    ax[0].bar(tb.effective_date, tb.turnover * 100, width=60, color=NAVY)
+    ax[0].axhline(tc["turnover"]["median"] * 100, color=RED, ls="--", lw=1.2,
+                  label=f"중앙값 {tc['turnover']['median']*100:.1f}%")
+    ax[0].set_title(f"리밸런싱별 회전율 — 연간 {tc['turnover']['annual']*100:.0f}%",
+                    color=NAVY, fontsize=11)
+    ax[0].set_ylabel("단방향 회전율 (%)")
+    ax[0].legend(fontsize=9)
+    ax[0].grid(axis="y", alpha=0.25)
+    ax[0].tick_params(labelrotation=30, labelsize=8)
+
+    caps = tc["capacity"]
+    xs = [f"{c['fund_krw']/1e8:,.0f}억" for c in caps]
+    ys = [c["worst_ratio"] * 100 for c in caps]
+    cols = [NAVY if y < 5 else ("#E08A1E" if y < 20 else RED) for y in ys]
+    b = ax[1].bar(xs, ys, color=cols, width=0.5)
+    for bb, y in zip(b, ys):
+        ax[1].text(bb.get_x() + bb.get_width() / 2, y + 0.25, f"{y:.1f}%",
+                   ha="center", fontsize=10, color=NAVY)
+    ax[1].axhline(20, color=RED, ls="--", lw=1, label="시장충격 우려선 20%")
+    ax[1].set_title("펀드 규모별 — 최대 종목 매매액 / 하루 거래대금",
+                    color=NAVY, fontsize=11)
+    ax[1].set_ylabel("ADTV90 대비 (%)")
+    ax[1].legend(fontsize=9)
+    ax[1].grid(axis="y", alpha=0.25)
+    fig.suptitle(f"추종 가능성 — 거래비용 연 {tc['cost']['annual_bp']:.0f}bp "
+                 f"· CAGR 영향 {tc['cagr']['drag_bp']:+.0f}bp",
+                 color=NAVY, fontsize=13)
+    save(fig, "09_회전율비용.png", bottom=0.26)
 
 print(f"\n완료 — {FIG}")
